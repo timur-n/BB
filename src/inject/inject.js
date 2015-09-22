@@ -5,8 +5,19 @@ var poller;
 
 function readData() {
 	counter += 1;
+	var data = {};
 	console.log('ReadData: ', counter);
-	chrome.runtime.sendMessage({data: counter});
+	try {
+		if (!window.bb_getData) {
+			throw new Error('Scraper not found');
+		}
+		data = window.bb_getData(data);
+	} catch(e) {
+		data = {
+			error: e.message
+		};
+	}
+	chrome.runtime.sendMessage({data: data});
 }
 
 function updatePolling() {

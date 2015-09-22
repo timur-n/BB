@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link type="text/css" rel="stylesheet" href="bootstrap.css">
     <link type="text/css" rel="stylesheet" href="dashboard.css">
     <script type="text/javascript" src="angular.js"></script>
+    <script type="text/javascript" src="reqwest.js"></script>
+    <script type="text/javascript" src="betfair-api.js"></script>
     <script type="text/javascript" src="dashboard.js"></script>
 </head>
 <body ng-app="BBApp">
 <div id="main-div" ng-controller="MainCtrl">
     <h1>Data</h1>
+    <button class="btn" ng-click="testBetfair();">Test betfair</button>
     <table>
         <tr>
             <th>Event</th>

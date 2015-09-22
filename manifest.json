@@ -22,16 +22,24 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://www.google.co.uk/*"
-      ],
-      "js": [
-        "src/inject/inject.js"
-      ]
+      "matches": ["*://smarkets.com/*", "*://www.skybet.com/*"],
+      "js": ["src/inject/inject.js", "src/inject/jquery-2.1.1.min.js"]
+    },
+    {
+      "matches": ["https://smarkets.com/*/horse-racing/*"],
+      "js": ["src/inject/smarkets/horse.js"]
+    },
+    {
+      "matches": ["https://smarkets.com/*/football/*"],
+      "js": ["src/inject/smarkets/football.js"]
     }
   ],
   "externally_connectable": {
     "matches": ["*://localhost/*"]
   },
-  "permissions": ["tabs", "tts"]
+  "permissions": [
+    "tabs",
+    "tts",
+    "https://*.betfair.com/*"
+  ]
 }

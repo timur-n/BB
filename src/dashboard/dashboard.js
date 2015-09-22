@@ -21,6 +21,7 @@ angular.module('BBApp', [])
 	.controller('MainCtrl', ['$scope', '$log', function($scope, $log) {
 		$scope.data = 0;
 		$scope.events = [];
+		$scope.betfair = createBetfair();
 
 		$scope.indexById = function(id) {
 			for (var i = 0; i < $scope.events.length; i += 1) {
@@ -52,4 +53,8 @@ angular.module('BBApp', [])
 				$scope.$apply();
 			}
 		};
+
+		$scope.testBetfair = function() {
+			$scope.betfair.test();
+		}
 	}]);
