@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="dashboard.css">
+    <script type="text/javascript" src="angular.js"></script>
+    <script type="text/javascript" src="dashboard.js"></script>
+</head>
+<body ng-app="BBApp">
+<div id="main-div" ng-controller="MainCtrl">
+    <h1>Data</h1>
+    <table>
+        <tr>
+            <th>Event</th>
+            <th>Data</th>
+        </tr>
+        <tr ng-repeat="event in events track by $index">
+            <td>{{event.name}}</td>
+            <td>{{event.data}}</td>
+        </tr>
+    </table>
+</div>
+</body>
+</html>

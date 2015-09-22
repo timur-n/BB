@@ -1,0 +1,9 @@
+h1 {
+    font-size: 2em;
+    white-space: nowrap;
+    padding: 0;
+    margin-bottom: 10px;
+}
+button {
+    white-space: nowrap;
+}
