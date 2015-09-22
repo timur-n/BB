@@ -20,6 +20,7 @@ function showMainPage() {
 }
 
 function test() {
+	// Ask content script for selection and then speak it using TTS
 	sendMessageToContent({getSelection: true}, function(response) {
 		console.log('TTS test response', response);
 		if (!response) {
