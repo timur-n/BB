@@ -6,65 +6,6 @@ var BetfairAppID = 'Zn8PUTbCvmwDw1RX',
         horseRaces: '7'
     };
 
-/**
- * Request data from Betfair via HTTP
- * @param options
- * @param done
- * @returns {*}
- */
-/*
-
-function request(options, done) {
-    return https.request(options, function (res) {
-        var output = '';
-        res.setEncoding('utf8');
-        res.on('data', function (chunk) {
-            output += chunk;
-        });
-        res.on('end', function () {
-            console.log('HTTP output:', output);
-            try {
-                var json = JSON.parse(output);
-                done(json);
-            } catch (e) {
-                done({error: e});
-            }
-        });
-    }).on('error', function (e) {
-        console.log('HTTP error:', e);
-        done(e);
-    });
-}
-*/
-/*
-function request(options, done, data) {
-    console.log('AJAX send', data);
-    reqwest({
-        url: 'https://' + options.url,
-        type: 'json',
-        method: options.method,
-        data: data,
-        contentType: 'application/json',
-        headers: options.headers,
-        crossOrigin: true,
-        //withCredentials: true,
-        error: function (err) {
-            console.log('AJAX error', err);
-            done(err);
-        },
-        success: function (resp) {
-            console.log('AJAX success', resp.content);
-            try {
-                var json = JSON.parse(output);
-                done(json);
-            } catch (e) {
-                done({error: e});
-            }
-        }
-    });
-}
-*/
-
 function param(object) {
     var encodedString = '';
     for (var prop in object) {
@@ -78,9 +19,21 @@ function param(object) {
     return encodedString;
 }
 
-function request(options, done, data) {
+/**
+ * Request data from Betfair via HTTP
+ * @param options
+ * @param data
+ * @param done
+ * @returns {*}
+ */
+function request(options, data, done) {
     console.log('AJAX send', options, data);
     var xhr = new XMLHttpRequest();
+    var doneFunc = function(obj) {
+        if (done) {
+            done(obj);
+        }
+    };
 
     xhr.open(options.method || 'GET', encodeURI('https://' + options.url));
     for (var prop in options.headers) {
@@ -93,13 +46,13 @@ function request(options, done, data) {
             console.log('AJAX success', xhr.responseText);
             try {
                 var json = JSON.parse(xhr.responseText);
-                done(json);
+                doneFunc(json);
             } catch (e) {
-                done({error: e});
+                doneFunc({error: e});
             }
         } else {
             console.log('AJAX failed', xhr.status);
-            done({error: xhr.status});
+            doneFunc({error: xhr.status});
         }
     };
     if (options.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
@@ -111,77 +64,34 @@ function request(options, done, data) {
 
 /**
  * Special options for Betrair HTTP requests
- * @param host
- * @param path
+ * @param url
  * @param sessionToken
- * @returns {{host: *, path: *, headers: {Accept: string, X-Authentication: *, X-Application: string, Content-Type: string}}}
+ * @returns {object}
  */
-function createOptions(host, path, sessionToken) {
+function createOptions(url, sessionToken) {
     return {
-        host: host,
-        path: path,
-        url: host + path,
+        url: url,
+        method: 'POST',
         headers: {
             'Accept': 'application/json',
             'X-Authentication': sessionToken,
             'X-Application': BetfairAppID,
-            'Content-Type': 'application/json'/*,
-            'Access-Control-Allow-Origin': ''*/
+            //'Access-Control-Allow-Origin': '',
+            'Content-Type': 'application/json'
         }
     };
 }
 
 function post(cmd, data, done) {
-    var options = createOptions('identitysso.betfair.com', '/api/' + cmd);
-
-    options.method = 'POST';
+    var options = createOptions('identitysso.betfair.com/api/' + cmd);
     options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-
-    var req = request(options, done, data);
-/*
-    req.write(postData);
-    req.end();
-*/
-}
-
-function postJson(cmd, data, done) {
-    var options = createOptions('identitysso.betfair.com', '/api/' + cmd);
-
-    options.method = 'POST';
-    options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-
-    var req = request(options, done, data);
-    /*
-     req.write(postData);
-     req.end();
-     */
-}
-
-function callSso(cmd, sessionToken, data, done) {
-    var options = createOptions('identitysso.betfair.com', '/api/' + cmd, sessionToken),
-        req = request(options, done, data);
-
-/*
-    if (data) {
-        req.write(JSON.stringify(data));
-    }
-    req.end();
-*/
+    request(options, data, done);
 }
 
 function callApi(sessionToken, cmd, data, done) {
-    var path = '/exchange/betting/rest/v1.0/' + cmd + '/',
-        options = createOptions('api.betfair.com', path, sessionToken);
-    options.method = 'POST';
-
-    console.log('Call to API:', path, sessionToken, data);
-    var req = request(options, done, data);
-/*
-    if (data) {
-        req.write(JSON.stringify(data));
-    }
-    req.end();
-*/
+    var options = createOptions('api.betfair.com/exchange/betting/rest/v1.0/' + cmd + '/', sessionToken);
+    console.log('betfair.callApi()', options.url, sessionToken, data);
+    request(options, data, done);
 }
 
 function matchMarketsAndPrices(markets, prices) {
@@ -283,24 +193,15 @@ function createBetfair() {
                 betfair.loggedOn = true;
                 betfair.sessionToken = data.token;
             }
+            console.log('Betfair login done, sessionToken: ', betfair.sessionToken);
             done(data);
         };
 
-        // https://identitysso.betfair.com/view/login?product=<BetfairAppID>&url=www.betfair.com
-        var options = createOptions('identitysso.betfair.com', '/view/login?product=' + BetfairAppID + '&url=www.betfair.com');
-        options.method = 'POST';
-        options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-/*
-        var data = {
-            product: BetfairAppID,
-            url: 'www.betfair.com'
-        };
-*/
-        request(options, done/*, data*/);
+        post('login', loginData, loginDone);
     };
 
     betfair.logout = function(done) {
-        callSso('logout', this.sessionToken, false, done);
+        //callSso('logout', this.sessionToken, false, done);
     };
 
     betfair.call = function(cmd, params, done) {
