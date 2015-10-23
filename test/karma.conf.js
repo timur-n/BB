@@ -7,18 +7,15 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'client/lib/angular.js',
-            'client/lib/angular-ngStorage.js',
-            'client/lib/angular-mocks.js',
-            'client/lib/*.js',
-            'client/calc.js',
-            'client/app2.js',
-            'test/app2-spec.js'
+            'src/dashboard/*.js',
+            'test/angular-mocks.js',
+            'test/app-spec.js',
+            'test/scrapers-spec.js'
         ],
 
         // list of files to exclude
         exclude: [
-            'client/main.js'
+            'src/dashboard/dashboard.js'
         ],
 
         // use dots reporter, as travis terminal does not support escaping sequences

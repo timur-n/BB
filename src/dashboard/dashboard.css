@@ -5,3 +5,9 @@ table {
 td, th {
     border: 1px solid grey;
 }
+.event-name {
+    max-width: 300px;
+}
+.selected {
+    background-color: #add8e6;
+}

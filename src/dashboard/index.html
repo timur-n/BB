@@ -6,6 +6,7 @@
     <script type="text/javascript" src="angular.js"></script>
     <script type="text/javascript" src="betfair-api.js"></script>
     <script type="text/javascript" src="dashboard.js"></script>
+    <script type="text/javascript" src="app.js"></script>
 </head>
 <body ng-app="BBApp">
 <div id="main-div" ng-controller="MainCtrl">
@@ -17,10 +18,20 @@
             <th>Data</th>
         </tr>
         <tr ng-repeat="event in events track by $index">
-            <td>{{event.name}}</td>
-            <td>{{event.data}}</td>
+            <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectEvent(event)">{{event.data.event.name || event.url}}</a></td>
+            <td>
+                <table class="event-table">
+                    <tr ng-repeat="bookie in event.data.bookies" ng-class="{selected: bookie.selected}">
+                        <td><a ng-click="selectBookie(bookie)">{{bookie.name}}</a></td>
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
+    <input type="text" ng-model="selectedEvent.smarkets.url">
+    <p>
+        {{selectedBookie}}
+    </p>
 </div>
 </body>
 </html>
