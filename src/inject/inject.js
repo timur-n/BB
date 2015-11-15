@@ -8,10 +8,12 @@ function readData() {
 	var data = {};
 	console.log('ReadData: ', counter);
 	try {
-		if (!window.bb_getData) {
-			throw new Error('Scraper not found');
+		if (!window.bb_getScraperName) {
+			data.error = 'Scraper not found';
+		} else {
+			var scraperName = window.bb_getScraperName;
+			data = window[scraperName](data);
 		}
-		data = window.bb_getData(data);
 	} catch(e) {
 		data = {
 			error: e.message

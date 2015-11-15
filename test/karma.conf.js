@@ -9,6 +9,8 @@ module.exports = function(config) {
         files: [
             'src/dashboard/*.js',
             'test/angular-mocks.js',
+            'src/inject/oddschecker.js',
+            'src/inject/jquery-2.1.1.min.js',
             'test/app-spec.js',
             'test/scrapers-spec.js'
         ],
