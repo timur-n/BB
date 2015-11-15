@@ -1,9 +1,22 @@
 angular.module('BBApp', [])
-    .controller('MainCtrl', ['$scope', '$log', function($scope, $log) {
+    .controller('MainCtrl', ['$scope', '$log', '$interval', function($scope, $log, $interval) {
         $scope.data = 0;
         $scope.events = [];
         $scope.betfair = createBetfair();
+        $scope.betfairPollInterval = 5000;
         $scope.knownBookies = ['Bet 365', 'Sky Bet', 'Ladbrokes', 'Betfair Sportsbook', 'Paddy Power', 'Bet Victor', 'Coral', 'William Hill'];
+
+        // Poll betfair data for events
+        $interval(function() {
+            $scope.events.forEach(function(event) {
+                $log.debug('Event', event);
+                if (event.betfair) {
+                    $scope.betfair.getMarketPrices(event.betfair, function(data) {
+                        $scope.updateBetfairData(data);
+                    })
+                }
+            });
+        }, $scope.betfairPollInterval);
 
         $scope.isSmarkets = function(url) {
             return url.indexOf('smarkets.com') >= 0;
@@ -58,9 +71,19 @@ angular.module('BBApp', [])
             });
         }
 
+        function normalizePrice(price) {
+            var parts = ('' + price).split('/');
+            if (parts.length === 2) {
+                return (((+parts[0]) + (+parts[1])) / parts[1]).toFixed(2);
+            } else {
+                return (1.0 * price).toFixed(2);
+            }
+        }
+
         $scope.updateRunner = function(runner, dataType, price) {
             if (dataType === 'back') {
                 runner.price = price;
+                runner.backOdds = normalizePrice(price);
             } else {
                 runner.lay = runner.lay || {};
                 runner.lay[dataType] = runner.lay[dataType] || {};
@@ -120,7 +143,6 @@ angular.module('BBApp', [])
                     event.data.bookies.push(newBookie);
                 }
             });
-            event.url = tabData.url;
         }
 
         function filterBookies(bookies) {
@@ -144,14 +166,22 @@ angular.module('BBApp', [])
             if (i >= 0) {
                 event = $scope.events[i];
             } else if (!isSmarkets) {
-                event = {id: tabData.id, smarkets: {}};
+                var name = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);
+                event = {
+                    id: tabData.id,
+                    name: name || tabData.url,
+                    time: tabData.data && tabData.data.event && tabData.data.event.time,
+                    data: tabData.data || {},
+                    smarkets: {}
+                };
                 $scope.events.push(event);
             } else {
                 $log.debug('Unknown Smarkets tab data', tabData.url);
             }
 
             if (event) {
-                event.data = event.data || {};
+                event.url = tabData.url;
+                event.betfair = tabData.betfair;
                 event.data.bookies = event.data.bookies || [];
                 if (isSmarkets) {
                     updateSmarkets(event, tabData);
@@ -160,6 +190,10 @@ angular.module('BBApp', [])
                 }
             }
             $scope.$apply();
+        };
+
+        $scope.updateBetfairData = function(betfairData) {
+            $log.debug('++ Received betfair data', betfairData);
         };
 
         $scope.removeTab = function(tabId) {
@@ -171,7 +205,9 @@ angular.module('BBApp', [])
         };
 
         $scope.testBetfair = function() {
-            $scope.betfair.test();
+            $scope.betfair.test(function(data) {
+                $log.debug('+++ Betfair test', data);
+            });
         };
 
         $scope.selectObj = function(array, obj) {
@@ -188,15 +224,40 @@ angular.module('BBApp', [])
         $scope.selectEvent = function(event) {
             $scope.selectObj($scope.events, event);
             $scope.selectedEvent = event;
-            if ($scope.selectedEvent.data.bookies.length) {
+
+            if ($scope.selectedEvent && $scope.selectedEvent.data.bookies.length) {
                 $scope.selectBookie($scope.selectedEvent.data.bookies[0]);
+            } else {
+                $scope.selectBookie(false);
+                $scope.selectMarket(false);
+                $scope.selectRunner(false);
             }
         };
 
         $scope.selectBookie = function(bookie) {
+            $scope.selectedBookie = bookie;
             if ($scope.selectedEvent) {
                 $scope.selectObj($scope.selectedEvent.data.bookies, bookie);
-                $scope.selectedBookie = bookie;
+                if ($scope.selectedBookie && $scope.selectedBookie.markets.length) {
+                    $scope.selectMarket($scope.selectedBookie.markets[0]);
+                } else {
+                    $scope.selectMarket(false);
+                    $scope.selectRunner(false);
+                }
+            }
+        };
+
+        $scope.selectMarket = function(market) {
+            $scope.selectedMarket = market;
+            if ($scope.selectedBookie) {
+                $scope.selectObj($scope.selectedBookie.markets, market);
+            }
+        };
+
+        $scope.selectRunner = function(runner) {
+            $scope.selectedRunner = runner;
+            if ($scope.selectedMarket) {
+                $scope.selectObj($scope.selectedMarket.runners, runner);
             }
         };
     }]);

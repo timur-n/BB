@@ -2,12 +2,25 @@ table {
     border: 1px solid grey;
     border-collapse: collapse;
 }
+table table {
+    border: none;
+}
 td, th {
     border: 1px solid grey;
+    padding: 2px 5px;
 }
 .event-name {
-    max-width: 300px;
+    max-width: 80%;
 }
 .selected {
     background-color: #add8e6;
+}
+.market-list {
+    list-style: none;
+}
+.market-list li {
+    float: left;
+}
+a[ng-click] {
+    cursor: pointer;
 }

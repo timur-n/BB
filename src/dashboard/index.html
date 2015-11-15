@@ -16,9 +16,10 @@
         <tr>
             <th>Event</th>
             <th>Data</th>
+            <th>Betfair</th>
         </tr>
         <tr ng-repeat="event in events track by $index">
-            <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectEvent(event)">{{event.data.event.name || event.url}}</a></td>
+            <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectEvent(event)">{{event.name || event.url}}</a></td>
             <td>
                 <table class="event-table">
                     <tr ng-repeat="bookie in event.data.bookies" ng-class="{selected: bookie.selected}">
@@ -26,12 +27,26 @@
                     </tr>
                 </table>
             </td>
+            <td>{{event.betfair}}</td>
         </tr>
     </table>
-    <input type="text" ng-model="selectedEvent.smarkets.url">
-    <p>
-        {{selectedBookie}}
-    </p>
+    <ul class="markets-list">
+        <li ng-repeat="market in selectedBookie.markets track by $index">
+            <a ng-click="selectMarket(market)" ng-class="{selected: market.selected}">{{market.name}}</a>
+        </li>
+    </ul>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Back odds</th>
+            <th>Lay odds</th>
+        </tr>
+        <tr ng-repeat="runner in selectedMarket.runners track by $index">
+            <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
+            <td>{{runner.backOdds}}</td>
+            <td>{{runner.layOdds}}</td>
+        </tr>
+    </table>
 </div>
 </body>
 </html>

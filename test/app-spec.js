@@ -1,17 +1,20 @@
 describe('Main app', function() {
     describe('Controller', function() {
-        var $scope, createController, $log;
+        var $scope, createController, $log, $interval;
 
         beforeEach(function() {
             module('BBApp');
 
             inject(function ($injector, $rootScope, $controller) {
                 $log = $injector.get('$log');
+                $interval = $injector.get('$interval');
 
                 createController = function () {
                     $scope = $rootScope.$new();
                     return $controller('MainCtrl', {
-                        '$scope': $scope
+                        $scope: $scope,
+                        $log: $log,
+                        $interval: $interval
                     });
                 };
             });
@@ -25,6 +28,11 @@ describe('Main app', function() {
 
         function simpleData() {
             return {
+                betfair: '123456',
+                event: {
+                    name: 'Test Event',
+                    time: '10:00'
+                },
                 bookies: [
                     {
                         name: 'Sky Bet', // name must be in the knownBookies list, otherwise it'll be filtered out
@@ -38,6 +46,7 @@ describe('Main app', function() {
 
         it('should create simple test data', function() {
             var data = simpleData();
+            expect(data.betfair).toBe('123456');
             expect(data.bookies).toBeDefined();
             expect(data.bookies.length).toBe(1);
             var bookie = data.bookies[0];
@@ -48,7 +57,8 @@ describe('Main app', function() {
         it('should update existing event (non-Smarkets data)', function() {
             $scope.events.push({
                 id: 1,
-                data: simpleData()
+                data: simpleData(),
+                url: 'http://skybet.com/event/1'
             });
 
             var tabData = {
@@ -102,12 +112,16 @@ describe('Main app', function() {
             var tabData = {
                 id: 2,
                 data: simpleData(),
+                betfair: '1234',
                 url: 'http://skybet.com/event/2'
             };
             tabData.data.bookies[0].name = 'Bet 365';
             $scope.updateData(tabData);
             expect($scope.events.length).toBe(2);
-            expect($scope.events[1].data.bookies[0].name).toBe('Bet 365');
+            var event = $scope.events[1];
+            expect(event.name).toBe('Test Event 10:00');
+            expect(event.time).toBe('10:00');
+            expect(event.data.bookies[0].name).toBe('Bet 365');
         });
 
         it('should not add event if not found and Smarkets data', function() {
