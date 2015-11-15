@@ -7,3 +7,7 @@ h1 {
 button {
     white-space: nowrap;
 }
+.input-group {
+    margin: 10px 0;
+    white-space: nowrap;
+}

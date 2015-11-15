@@ -30,11 +30,32 @@ function test() {
 	});
 }
 
+function betfairUpdate() {
+	betfairIds = document.getElementById('betfair-input').value;
+	console.log('New betfairIds', betfairIds);
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+		chrome.extension.getBackgroundPage().setBetfairData(tabs[0].url, betfairIds);
+	});
+	sendMessageToContent({betfair: betfairIds})
+}
+
 function initialize() {
 	console.log('initializing');
+	chrome.extension.getBackgroundPage().test();
+	chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+		var data = chrome.extension.getBackgroundPage().getBetfairData(tabs[0].url);
+		console.log('Get betfairIds', data);
+		if (data) {
+			betfairIds = data;
+			document.getElementById('betfair-input').value = data;
+		}
+	});
 	document.getElementById("start-stop-btn").addEventListener("click", startStop);
 	document.getElementById("show-main-btn").addEventListener("click", showMainPage);
 	document.getElementById("test-btn").addEventListener("click", test);
+	document.getElementById("betfair-update").addEventListener("click", betfairUpdate);
+	document.getElementById('betfair-input').setAttribute('value', betfairIds);
 }
 
+var betfairIds = '?';
 window.addEventListener("load", initialize);
