@@ -7,10 +7,12 @@ module.exports = function(config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'src/dashboard/*.js',
+            'extension/src/dashboard/angular.js',
+            'extension/src/dashboard/app.js',
+            'extension/src/dashboard/betfair-api.js',
             'test/angular-mocks.js',
-            'src/inject/oddschecker.js',
-            'src/inject/jquery-2.1.1.min.js',
+            'extension/src/inject/oddschecker.js',
+            'extension/src/inject/jquery-2.1.1.min.js',
             'test/app-spec.js',
             'test/scrapers-spec.js'
         ],
