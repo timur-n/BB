@@ -2,11 +2,14 @@
  * skybet data
  */
 
-if (window.bb_getData) {
-    throw new Error('Skybet/horse');
+if (!window.__karma__) {
+    if (window.bb_getScraperName) {
+        throw new Error('bb_getScraperName already registered (Sky horse)');
+    }
+    window.bb_getScraperName = 'bb_getSkyHorse';
 }
 
-window.bb_getData = function() {
+window.bb_getSkyHorse = function() {
     var result = {};
     var $items = $('#racecard-form .js-analytics-openclose'),
         market = {
