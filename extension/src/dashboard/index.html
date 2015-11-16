@@ -10,23 +10,18 @@
 </head>
 <body ng-app="BBApp">
 <div id="main-div" ng-controller="MainCtrl">
-    <h1>Data</h1>
+<!--
     <button class="btn" ng-click="testBetfair();">Test betfair</button>
+-->
     <table>
         <tr>
             <th>Event</th>
-            <th>Data</th>
+            <th ng-repeat="knownBookie in knownBookies">{{knownBookie.short}}</th>
             <th>Betfair</th>
         </tr>
         <tr ng-repeat="event in events track by $index">
             <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectEvent(event)">{{event.name || event.url}}</a></td>
-            <td>
-                <table class="event-table">
-                    <tr ng-repeat="bookie in event.data.bookies" ng-class="{selected: bookie.selected}">
-                        <td><a ng-click="selectBookie(bookie)">{{bookie.name}}</a></td>
-                    </tr>
-                </table>
-            </td>
+            <td ng-repeat="bookie in event.bookies" ng-class="{selected: bookie.selected}"><a ng-click="selectBookie(bookie)">{{bookie.summary}}</a></td>
             <td>{{event.betfair}}</td>
         </tr>
     </table>
@@ -44,7 +39,7 @@
         <tr ng-repeat="runner in selectedMarket.runners track by $index">
             <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
             <td>{{runner.backOdds}}</td>
-            <td>{{runner.layOdds}}</td>
+            <td>{{runner.lay.betfair && runner.lay.betfair.price}}</td>
         </tr>
     </table>
 </div>
