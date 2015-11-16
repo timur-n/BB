@@ -4,7 +4,14 @@ var BetfairAppID = 'Zn8PUTbCvmwDw1RX',
     eventTypes = {
         football: '1',
         horseRaces: '7'
-    };
+    },
+    knownHorseMarketNames = ['Each Way', 'To Be Placed'],
+    debug = false;
+
+// todo-timur:
+function debugLog() {
+
+}
 
 function param(object) {
     var encodedString = '';
@@ -27,7 +34,9 @@ function param(object) {
  * @returns {*}
  */
 function request(options, data, done) {
-    console.log('AJAX send', options, data);
+    if (debug) {
+        console.log('AJAX send', options, data);
+    }
     var xhr = new XMLHttpRequest();
     var doneFunc = function(obj) {
         if (done) {
@@ -43,7 +52,9 @@ function request(options, data, done) {
     }
     xhr.onload = function() {
         if (xhr.status === 200) {
-            console.log('AJAX success', xhr.responseText);
+            if (debug) {
+                console.log('AJAX success', xhr.responseText);
+            }
             try {
                 var json = JSON.parse(xhr.responseText);
                 doneFunc(json);
@@ -51,7 +62,9 @@ function request(options, data, done) {
                 doneFunc({error: e});
             }
         } else {
-            console.log('AJAX failed', xhr.status);
+            if (debug) {
+                console.log('AJAX failed', xhr.status);
+            }
             doneFunc({error: xhr.status});
         }
     };
@@ -90,7 +103,9 @@ function post(cmd, data, done) {
 
 function callApi(sessionToken, cmd, data, done) {
     var options = createOptions('api.betfair.com/exchange/betting/rest/v1.0/' + cmd + '/', sessionToken);
-    console.log('betfair.callApi()', options.url, sessionToken, data);
+    if (debug) {
+        console.log('betfair.callApi()', options.url, sessionToken, data);
+    }
     request(options, data, done);
 }
 
@@ -245,6 +260,19 @@ function createBetfair() {
         }
     }
 
+    function renameMarket(market) {
+        if (market.eventType.id === eventTypes.horseRaces) {
+            if (market.marketName === 'To Be Placed') {
+                return 'Place';
+            } else if (market.marketName === 'Each Way') {
+                return market.marketName;
+            } else {
+                return 'Win';
+            }
+        }
+        return market.name;
+    }
+
     betfair.getPrices = function(params, done) {
         var marketData,
             marketParams = {
@@ -301,6 +329,7 @@ function createBetfair() {
         function lmbDone(priceData) {
             var result = matchMarketsAndPrices(marketData, priceData);
             result.markets.forEach(function(market) {
+                market.name = renameMarket(market.name);
                 if (market.event && market.eventType) {
                     market.url = getMarketUrl(market.eventType.id, market.marketId);
                 }
