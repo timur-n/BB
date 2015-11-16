@@ -55,23 +55,28 @@ describe('Main app', function() {
         });
 
         it('should update existing event (non-Smarkets data)', function() {
+            $scope.knownBookies = [{name: 'B1'}, {name: 'Sky Bet'}, {name: 'B3'}];
+            var data = simpleData();
             $scope.events.push({
                 id: 1,
-                data: simpleData(),
+                data: data,
+                bookies: [{name: 'B1'}, {name: 'Sky Bet'}, {name: 'B3'}],
                 url: 'http://skybet.com/event/1'
             });
 
             var tabData = {
                 id: 1,
-                data: simpleData(),
+                data: data,
                 url: 'http://skybet.com/event/1'
             };
             tabData.data.bookies[0].markets[0].runners[0].price = '11';
             tabData.data.bookies[0].markets[0].runners[1].price = '21';
+
             $scope.updateData(tabData);
             expect($scope.events.length).toBe(1);
-            expect($scope.events[0].data.bookies.length).toBe(1);
-            var b = $scope.events[0].data.bookies[0];
+            expect($scope.events[0].bookies.length).toBe(3); // same as known bookies
+            var b = $scope.events[0].bookies[1];
+            expect(b.name).toBe('Sky Bet');
             expect(b.markets.length).toBe(1);
             expect(b.markets[0].runners.length).toBe(2);
             var r = b.markets[0].runners[0];
@@ -126,9 +131,43 @@ describe('Main app', function() {
 
         it('should not add event if not found and Smarkets data', function() {
             $scope.events.push({id: 1});
-            $scope.updateData({id: 2, data: 'test', url: 'http://smarkets.com/event/2'})
+            $scope.updateData({id: 2, data: 'test', url: 'http://smarkets.com/event/2'});
             expect($scope.events.length).toBe(1);
             expect($scope.events[0].id).toBe(1);
+        });
+
+        it('should select only 1 event at a time', function() {
+            $scope.events.push({id: 1});
+            $scope.events.push({id: 2});
+            $scope.events.push({id: 3});
+            expect($scope.events[0].selected).toBeFalsy();
+            expect($scope.events[1].selected).toBeFalsy();
+            expect($scope.events[2].selected).toBeFalsy();
+            expect($scope.selectedEvent).toBeFalsy();
+
+            $scope.selectEvent($scope.events[0]);
+            expect($scope.events[0].selected).toBeTruthy();
+            expect($scope.events[1].selected).toBeFalsy();
+            expect($scope.events[2].selected).toBeFalsy();
+            expect($scope.selectedEvent).toBeTruthy();
+
+            $scope.selectEvent($scope.events[2]);
+            expect($scope.events[0].selected).toBeFalsy();
+            expect($scope.events[1].selected).toBeFalsy();
+            expect($scope.events[2].selected).toBeTruthy();
+            expect($scope.selectedEvent).toBeTruthy();
+
+            $scope.selectEvent($scope.events[1]);
+            expect($scope.events[0].selected).toBeFalsy();
+            expect($scope.events[1].selected).toBeTruthy();
+            expect($scope.events[2].selected).toBeFalsy();
+            expect($scope.selectedEvent).toBeTruthy();
+
+            $scope.selectEvent(false);
+            expect($scope.events[0].selected).toBeFalsy();
+            expect($scope.events[1].selected).toBeFalsy();
+            expect($scope.events[2].selected).toBeFalsy();
+            expect($scope.selectedEvent).toBeFalsy();
         });
     });
 });

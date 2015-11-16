@@ -4,7 +4,16 @@ angular.module('BBApp', [])
         $scope.events = [];
         $scope.betfair = createBetfair();
         $scope.betfairPollInterval = 5000;
-        $scope.knownBookies = ['Bet 365', 'Sky Bet', 'Ladbrokes', 'Betfair Sportsbook', 'Paddy Power', 'Bet Victor', 'Coral', 'William Hill'];
+        $scope.knownBookies = [
+            {name: 'Bet 365', short: 'b365'},
+            {name: 'Sky Bet', short: 'Sky'},
+            {name: 'Ladbrokes', short: 'Lads'},
+            {name: 'Betfair Sportsbook', short: 'BF'},
+            {name: 'Paddy Power', short: 'Paddy'},
+            {name: 'Bet Victor', short: 'BV'},
+            {name: 'Coral', short: 'Coral'},
+            {name: 'William Hill', short: 'WH'}
+        ];
 
         // Poll betfair data for events
         $interval(function() {
@@ -12,6 +21,7 @@ angular.module('BBApp', [])
                 $log.debug('Event', event);
                 if (event.betfair) {
                     $scope.betfair.getMarketPrices(event.betfair, function(data) {
+                        data.betfair = event.betfair;
                         $scope.updateBetfairData(data);
                     })
                 }
@@ -55,6 +65,10 @@ angular.module('BBApp', [])
         };
 
         $scope.indexByBetfair = function(betfairId) {
+            return $scope.arrayObjBy($scope.events, function(event) {
+                return event.betfair === betfairId;
+            });
+/*
             return $scope.indexBy(function(event) {
                 if (event.betfair) {
                     return $scope.arrayIndexBy(event.betfair, function(market) {
@@ -62,6 +76,7 @@ angular.module('BBApp', [])
                     });
                 }
             });
+*/
         };
 
         function updateSmarkets(event, tabData) {
@@ -80,6 +95,10 @@ angular.module('BBApp', [])
             }
         }
 
+        function recalculate(bookie) {
+            bookie.summary = '+';
+        }
+
         $scope.updateRunner = function(runner, dataType, price) {
             if (dataType === 'back') {
                 runner.price = price;
@@ -93,15 +112,13 @@ angular.module('BBApp', [])
 
         $scope.updateBookiePrices = function(oldBookie, newData, dataType) {
             // Clear all prices first
-            if (oldBookie.markets) {
-                oldBookie.markets.forEach(function(item) {
-                    item.runners.forEach(function(runner) {
-                        $scope.updateRunner(runner, dataType, NaN);
-                    });
+            oldBookie.markets = oldBookie.markets || [];
+            oldBookie.markets.forEach(function(item) {
+                item.runners.forEach(function(runner) {
+                    $scope.updateRunner(runner, dataType, NaN);
                 });
-            }
+            });
             // Now match all markets/runners and update prices
-            // todo-timur: add re-calculation
             if (newData.markets) {
                 newData.markets.forEach(function(newMkt) {
                     var oldMkt = $scope.arrayObjBy(oldBookie.markets, function(mkt) {
@@ -123,6 +140,8 @@ angular.module('BBApp', [])
                     }
                 });
             }
+
+            recalculate(oldBookie);
         };
 
         function updateBookies(event, tabData) {
@@ -132,26 +151,14 @@ angular.module('BBApp', [])
             if (!tabData.data.bookies) {
                 throw new Error('Tab data must have data.bookies property');
             }
-            var bookies = filterBookies(tabData.data.bookies);
-            bookies.forEach(function(newBookie) {
-                var oldBookie = $scope.arrayObjBy(event.data.bookies, function(item) {
+            tabData.data.bookies.forEach(function(newBookie) {
+                var oldBookie = $scope.arrayObjBy(event.bookies, function(item) {
                     return item.name === newBookie.name;
                 });
                 if (oldBookie) {
                     $scope.updateBookiePrices(oldBookie, newBookie, 'back');
-                } else {
-                    event.data.bookies.push(newBookie);
                 }
             });
-        }
-
-        function filterBookies(bookies) {
-            if (bookies && bookies.length) {
-                return bookies.filter(function(bookie) {
-                    return $scope.knownBookies.indexOf(bookie.name) >= 0;
-                });
-            }
-            return bookies;
         }
 
         $scope.updateData = function(tabData) {
@@ -167,11 +174,18 @@ angular.module('BBApp', [])
                 event = $scope.events[i];
             } else if (!isSmarkets) {
                 var name = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);
+                var bookies = $scope.knownBookies.map(function(knownBookie) {
+                    return {
+                        name: knownBookie.name,
+                        summary: '?'
+                    }
+                });
                 event = {
                     id: tabData.id,
                     name: name || tabData.url,
                     time: tabData.data && tabData.data.event && tabData.data.event.time,
                     data: tabData.data || {},
+                    bookies: bookies,
                     smarkets: {}
                 };
                 $scope.events.push(event);
@@ -194,6 +208,12 @@ angular.module('BBApp', [])
 
         $scope.updateBetfairData = function(betfairData) {
             $log.debug('++ Received betfair data', betfairData);
+            var event = $scope.indexByBetfair(betfairData.betfair);
+            if (event) {
+                event.bookies.forEach(function(bookie) {
+                    $scope.updateBookiePrices(bookie, betfairData);
+                });
+            }
         };
 
         $scope.removeTab = function(tabId) {
@@ -225,8 +245,8 @@ angular.module('BBApp', [])
             $scope.selectObj($scope.events, event);
             $scope.selectedEvent = event;
 
-            if ($scope.selectedEvent && $scope.selectedEvent.data.bookies.length) {
-                $scope.selectBookie($scope.selectedEvent.data.bookies[0]);
+            if ($scope.selectedEvent && $scope.selectedEvent.bookies) {
+                $scope.selectBookie($scope.selectedEvent.bookies[0]);
             } else {
                 $scope.selectBookie(false);
                 $scope.selectMarket(false);
@@ -237,7 +257,7 @@ angular.module('BBApp', [])
         $scope.selectBookie = function(bookie) {
             $scope.selectedBookie = bookie;
             if ($scope.selectedEvent) {
-                $scope.selectObj($scope.selectedEvent.data.bookies, bookie);
+                $scope.selectObj($scope.selectedEvent.bookies, bookie);
                 if ($scope.selectedBookie && $scope.selectedBookie.markets.length) {
                     $scope.selectMarket($scope.selectedBookie.markets[0]);
                 } else {
