@@ -15,6 +15,12 @@ angular.module('BBApp', [])
             {name: 'William Hill', short: 'WH'}
         ];
 
+        var dataTypes = {
+            back: 'back',
+            betfair: 'bf',
+            smarkets: 'sm'
+        };
+
         // Poll betfair data for events
         $interval(function() {
             $scope.events.forEach(function(event) {
@@ -97,16 +103,23 @@ angular.module('BBApp', [])
 
         function recalculate(bookie) {
             bookie.summary = '+';
+            bookie.markets.forEach(function(market) {
+                market.runners.forEach(function(runner) {
+                    runner.backOdds = normalizePrice(runner.price);
+                    // todo-timur: find best lay odds (betfair/smarkets)
+                    runner.layOdds = normalizePrice(runner.lay && runner.lay.bf && runner.lay.bf.price);
+                });
+            });
         }
 
-        $scope.updateRunner = function(runner, dataType, price) {
-            if (dataType === 'back') {
+        $scope.updateRunner = function(runner, dataType, price, size) {
+            if (dataType === dataTypes.back) {
                 runner.price = price;
-                runner.backOdds = normalizePrice(price);
             } else {
                 runner.lay = runner.lay || {};
                 runner.lay[dataType] = runner.lay[dataType] || {};
                 runner.lay[dataType].price = price;
+                runner.lay[dataType].size = size;
             }
         };
 
@@ -130,12 +143,12 @@ angular.module('BBApp', [])
                                 return runner.name === newRunner.name;
                             });
                             if (oldRunner) {
-                                $scope.updateRunner(oldRunner, dataType, newRunner.price);
-                            } else {
+                                $scope.updateRunner(oldRunner, dataType, newRunner.price, newRunner.size);
+                            } else if (dataType === dataTypes.back) {
                                 oldMkt.runners.push(newRunner);
                             }
                         });
-                    } else {
+                    } else if (dataType === dataTypes.back) {
                         oldBookie.markets.push(newMkt);
                     }
                 });
@@ -156,7 +169,7 @@ angular.module('BBApp', [])
                     return item.name === newBookie.name;
                 });
                 if (oldBookie) {
-                    $scope.updateBookiePrices(oldBookie, newBookie, 'back');
+                    $scope.updateBookiePrices(oldBookie, newBookie, dataTypes.back);
                 }
             });
         }
@@ -177,7 +190,7 @@ angular.module('BBApp', [])
                 var bookies = $scope.knownBookies.map(function(knownBookie) {
                     return {
                         name: knownBookie.name,
-                        summary: '?'
+                        summary: ''
                     }
                 });
                 event = {
@@ -211,7 +224,7 @@ angular.module('BBApp', [])
             var event = $scope.indexByBetfair(betfairData.betfair);
             if (event) {
                 event.bookies.forEach(function(bookie) {
-                    $scope.updateBookiePrices(bookie, betfairData);
+                    $scope.updateBookiePrices(bookie, betfairData, dataTypes.betfair);
                 });
             }
         };

@@ -25,7 +25,7 @@
             <td>{{event.betfair}}</td>
         </tr>
     </table>
-    <ul class="markets-list">
+    <ul class="markets-list" ng-show="selectedBookie && selectedBookie.markets.length > 1">
         <li ng-repeat="market in selectedBookie.markets track by $index">
             <a ng-click="selectMarket(market)" ng-class="{selected: market.selected}">{{market.name}}</a>
         </li>
@@ -39,7 +39,7 @@
         <tr ng-repeat="runner in selectedMarket.runners track by $index">
             <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
             <td>{{runner.backOdds}}</td>
-            <td>{{runner.lay.betfair && runner.lay.betfair.price}}</td>
+            <td>{{runner.layOdds}}</td>
         </tr>
     </table>
 </div>

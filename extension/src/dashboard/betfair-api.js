@@ -261,7 +261,7 @@ function createBetfair() {
     }
 
     function renameMarket(market) {
-        if (market.eventType.id === eventTypes.horseRaces) {
+        if (market.eventType && market.eventType.id === eventTypes.horseRaces) {
             if (market.marketName === 'To Be Placed') {
                 return 'Place';
             } else if (market.marketName === 'Each Way') {
@@ -329,7 +329,7 @@ function createBetfair() {
         function lmbDone(priceData) {
             var result = matchMarketsAndPrices(marketData, priceData);
             result.markets.forEach(function(market) {
-                market.name = renameMarket(market.name);
+                market.name = renameMarket(market);
                 if (market.event && market.eventType) {
                     market.url = getMarketUrl(market.eventType.id, market.marketId);
                 }
