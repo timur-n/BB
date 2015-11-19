@@ -157,6 +157,7 @@ describe('Main app', function() {
             expect(runner.lay.bf).toBeDefined();
             expect(runner.lay.bf.price).toBe('11');
             expect(runner.lay.bf.size).toBe(100);
+            expect(runner.layOdds).toBe('11.00');
             runner = market.runners[1];
             expect(runner.name).toBe('runner 2');
 
@@ -172,12 +173,17 @@ describe('Main app', function() {
                 url: 'http://skybet.com/event/2'
             };
             tabData.data.bookies[0].name = 'Bet 365';
+
             $scope.updateData(tabData);
             expect($scope.events.length).toBe(2);
             var event = $scope.events[1];
             expect(event.name).toBe('Test Event 10:00');
             expect(event.time).toBe('10:00');
-            expect(event.data.bookies[0].name).toBe('Bet 365');
+            expect(event.bookies.length).toBe(8);
+            var bookie = event.bookies[0];
+            expect(bookie.name).toBe('Bet 365');
+            expect(bookie.backStake).toBe(10);
+            expect(bookie.layCommission).toBe(2);
         });
 
         it('should not add event if not found and Smarkets data', function() {
@@ -187,38 +193,8 @@ describe('Main app', function() {
             expect($scope.events[0].id).toBe(1);
         });
 
-        it('should select only 1 event at a time', function() {
-            $scope.events.push({id: 1});
-            $scope.events.push({id: 2});
-            $scope.events.push({id: 3});
-            expect($scope.events[0].selected).toBeFalsy();
-            expect($scope.events[1].selected).toBeFalsy();
-            expect($scope.events[2].selected).toBeFalsy();
-            expect($scope.selectedEvent).toBeFalsy();
+        it('should apply selected processors', function() {
 
-            $scope.selectEvent($scope.events[0]);
-            expect($scope.events[0].selected).toBeTruthy();
-            expect($scope.events[1].selected).toBeFalsy();
-            expect($scope.events[2].selected).toBeFalsy();
-            expect($scope.selectedEvent).toBeTruthy();
-
-            $scope.selectEvent($scope.events[2]);
-            expect($scope.events[0].selected).toBeFalsy();
-            expect($scope.events[1].selected).toBeFalsy();
-            expect($scope.events[2].selected).toBeTruthy();
-            expect($scope.selectedEvent).toBeTruthy();
-
-            $scope.selectEvent($scope.events[1]);
-            expect($scope.events[0].selected).toBeFalsy();
-            expect($scope.events[1].selected).toBeTruthy();
-            expect($scope.events[2].selected).toBeFalsy();
-            expect($scope.selectedEvent).toBeTruthy();
-
-            $scope.selectEvent(false);
-            expect($scope.events[0].selected).toBeFalsy();
-            expect($scope.events[1].selected).toBeFalsy();
-            expect($scope.events[2].selected).toBeFalsy();
-            expect($scope.selectedEvent).toBeFalsy();
         });
     });
 });

@@ -74,15 +74,6 @@ angular.module('BBApp', [])
             return $scope.arrayObjBy($scope.events, function(event) {
                 return event.betfair === betfairId;
             });
-/*
-            return $scope.indexBy(function(event) {
-                if (event.betfair) {
-                    return $scope.arrayIndexBy(event.betfair, function(market) {
-                        return market.id === betfairId;
-                    });
-                }
-            });
-*/
         };
 
         function updateSmarkets(event, tabData) {
@@ -102,14 +93,42 @@ angular.module('BBApp', [])
         }
 
         function recalculate(bookie) {
-            bookie.summary = '+';
+            var isProfit = false,
+                isOk = false,
+                max = -10000;
+
             bookie.markets.forEach(function(market) {
                 market.runners.forEach(function(runner) {
                     runner.backOdds = normalizePrice(runner.price);
                     // todo-timur: find best lay odds (betfair/smarkets)
                     runner.layOdds = normalizePrice(runner.lay && runner.lay.bf && runner.lay.bf.price);
+                    runner.result = runner.result || {};
+                    if (bookie.processors) {
+                        bookie.processors.forEach(function (processor) {
+                            if (processor.enabled) {
+                                runner.result[processor.id] = processor.func(runner, bookie.backStake, bookie.layCommission, bookie);
+                                var result = runner.result[processor.id];
+
+                                if (processor.enabled && result) {
+                                    isProfit = isProfit || result.isProfit;
+                                    isOk = isOk || result.isOk;
+                                    if (result.isProfit || result.isOk) {
+                                        max = Math.max(max, result.profit);
+                                    }
+                                }
+                                if (runner.lay && runner.lay.bf && result) {
+                                    result.enough = runner.lay.bf.size >= result.layStake;
+                                }
+                            }
+                        });
+                    }
                 });
             });
+            bookie.summary = {
+                text: max > -100 ? max.toFixed(2) : '#',
+                isProfit: isProfit,
+                isOk: isOk && !isProfit
+            };
         }
 
         $scope.updateRunner = function(runner, dataType, price, size) {
@@ -190,7 +209,15 @@ angular.module('BBApp', [])
                 var bookies = $scope.knownBookies.map(function(knownBookie) {
                     return {
                         name: knownBookie.name,
-                        summary: ''
+                        backStake: 10,
+                        layCommission: 2,
+                        backWinnerTerms: 0,
+                        processors: [
+                            {name: 'Qualifier', id: 'q', func: calcQualifier, enabled: true},
+                            {name: 'Freebet', id: 'snr', func: calcFreebet, enabled: true},
+                            {name: 'Winner', id: 'winner', func: backWinner, enabled: true}
+                        ],
+                        summary: {}
                     }
                 });
                 event = {
@@ -243,7 +270,7 @@ angular.module('BBApp', [])
             });
         };
 
-        $scope.selectObj = function(array, obj) {
+        $scope.selectObj = function(array, obj, oldObj, name) {
             if (array) {
                 array.forEach(function (item) {
                     item.selected = false;
@@ -252,25 +279,18 @@ angular.module('BBApp', [])
             if (obj) {
                 obj.selected = true;
             }
-        };
-
-        $scope.selectEvent = function(event) {
-            $scope.selectObj($scope.events, event);
-            $scope.selectedEvent = event;
-
-            if ($scope.selectedEvent && $scope.selectedEvent.bookies) {
-                $scope.selectBookie($scope.selectedEvent.bookies[0]);
-            } else {
-                $scope.selectBookie(false);
-                $scope.selectMarket(false);
-                $scope.selectRunner(false);
+            if (oldObj) {
+                oldObj.selected = false;
             }
         };
 
-        $scope.selectBookie = function(bookie) {
+        $scope.selectBookie = function(event, bookie) {
+            if ($scope.selectedBookie) {
+                $scope.selectedBookie.selected = false;
+            }
             $scope.selectedBookie = bookie;
-            if ($scope.selectedEvent) {
-                $scope.selectObj($scope.selectedEvent.bookies, bookie);
+            if (event) {
+                $scope.selectObj(event.bookies, bookie);
                 if ($scope.selectedBookie && $scope.selectedBookie.markets.length) {
                     $scope.selectMarket($scope.selectedBookie.markets[0]);
                 } else {

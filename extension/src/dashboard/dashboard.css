@@ -1,12 +1,12 @@
 table {
-    border: 1px solid grey;
-    border-collapse: collapse;
+    border-bottom: 1px solid grey;
+    border-collapse: separate;
 }
 table table {
     border: none;
 }
 td, th {
-    border: 1px solid grey;
+    border: 1px solid transparent;
     padding: 2px 5px;
 }
 .event-name {
@@ -23,4 +23,54 @@ td, th {
 }
 a[ng-click] {
     cursor: pointer;
+}
+.green {
+    background-color: lightgreen;
+}
+.yellow {
+    background-color: beige;
+}
+.bookie-options {
+    padding: 5px;
+}
+.bookie-options input[type=number] {
+    width: 50px;
+}
+.bookie-processors {
+    list-style: none;
+    white-space: nowrap;
+    margin-bottom: 5px;
+    padding: 0;
+}
+.bookie-processors li {
+    display: inline-block;
+    padding: 5px 0;
+    margin-right: 10px;
+}
+.back-odds {
+    background-color: lightblue;
+}
+.lay-odds {
+    background-color: lightpink;
+}
+.lay-odds sub {
+    margin-left: 10px;
+    color: gray;
+}
+label, input[type=checkbox] {
+    vertical-align: middle;
+    margin: 0;
+}
+.events td {
+    /*opacity: 0.7;*/
+    text-align: center;
+}
+.events td.selected {
+    /*outline: 2px solid gray;*/
+    /*opacity: 1;*/
+    font-weight: bold;
+    border: 1px solid gray;
+}
+th {
+    background-color: #cdcdcd;
 }

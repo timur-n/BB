@@ -6,6 +6,9 @@
     <script type="text/javascript" src="angular.js"></script>
     <script type="text/javascript" src="betfair-api.js"></script>
     <script type="text/javascript" src="dashboard.js"></script>
+    <script type="text/javascript" src="processors/qualifier.js"></script>
+    <script type="text/javascript" src="processors/freebet.js"></script>
+    <script type="text/javascript" src="processors/backWinner.js"></script>
     <script type="text/javascript" src="app.js"></script>
 </head>
 <body ng-app="BBApp">
@@ -13,7 +16,7 @@
 <!--
     <button class="btn" ng-click="testBetfair();">Test betfair</button>
 -->
-    <table>
+    <table class="events">
         <tr>
             <th>Event</th>
             <th ng-repeat="knownBookie in knownBookies">{{knownBookie.short}}</th>
@@ -21,10 +24,29 @@
         </tr>
         <tr ng-repeat="event in events track by $index">
             <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectEvent(event)">{{event.name || event.url}}</a></td>
-            <td ng-repeat="bookie in event.bookies" ng-class="{selected: bookie.selected}"><a ng-click="selectBookie(bookie)">{{bookie.summary}}</a></td>
+            <td ng-repeat="bookie in event.bookies" ng-class="{selected: bookie.selected, green: bookie.summary.isProfit, yellow: bookie.summary.isOk}">
+                <a class="summary"
+                   ng-click="selectBookie(event, bookie)">
+                    {{bookie.summary.text}}
+                </a>
+            </td>
             <td>{{event.betfair}}</td>
         </tr>
     </table>
+    <div class="bookie-options" ng-show="!!selectedBookie">
+        <label for="back-stake">Back stake</label>
+        <input id="back-stake" type="number" ng-model="selectedBookie.backStake" maxlength="3">
+        <label for="lay-comm">Lay comm (%)</label>
+        <input id="lay-comm" type="number" ng-model="selectedBookie.layCommission" maxlength="3">
+        <label for="winner-terms">Back winner</label>
+        <input id="winner-terms" type="number" ng-model="selectedBookie.backWinnerTerms" maxlength="1">
+        <ul class="bookie-processors">
+            <li ng-repeat="processor in selectedBookie.processors track by $index">
+                <label for="{{processor.id + $index}}">{{processor.name}}</label>
+                <input id="{{processor.id + $index}}" type="checkbox" ng-model="processor.enabled">
+            </li>
+        </ul>
+    </div>
     <ul class="markets-list" ng-show="selectedBookie && selectedBookie.markets.length > 1">
         <li ng-repeat="market in selectedBookie.markets track by $index">
             <a ng-click="selectMarket(market)" ng-class="{selected: market.selected}">{{market.name}}</a>
@@ -35,11 +57,19 @@
             <th>Name</th>
             <th>Back odds</th>
             <th>Lay odds</th>
+            <th ng-repeat="processor in selectedBookie.processors track by $index" ng-show="processor.enabled">
+                {{processor.name}}
+            </th>
         </tr>
         <tr ng-repeat="runner in selectedMarket.runners track by $index">
             <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
-            <td>{{runner.backOdds}}</td>
-            <td>{{runner.layOdds}}</td>
+            <td class="back-odds">{{runner.backOdds}}</td>
+            <td class="lay-odds">{{runner.layOdds}}<sub>{{runner.lay.bf.size | number:0}}</sub></td>
+            <td ng-repeat="processor in selectedBookie.processors track by $index"
+                ng-show="processor.enabled"
+                ng-class="{green: runner.result[processor.id].isProfit, yellow: runner.result[processor.id].isOk}">
+                {{runner.result[processor.id].profit | number:2}}
+            </td>
         </tr>
     </table>
 </div>
