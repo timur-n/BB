@@ -9,12 +9,13 @@ window.bb_getOddschekerHorse = function(result) {
     result = result || {};
 
     //result.bookies = result.bookies || {};
-    var bookies = [];
+    var bookies = [],
+        bookieHash = {};
 
     var $ = jQuery,
         $bookies = $('.eventTable .eventTableHeader td aside a'),
         $rows = $('.eventTable .eventTableRow'),
-        $ewRow = $('.eventTable .eventTableFooter');
+        $ewRow = $('#etfEW td[data-ew-div]');
 
     result.event = result.event || {};
     result.event.name = $('.nav-popout.selected').clone().children().remove().end().text();
@@ -24,7 +25,26 @@ window.bb_getOddschekerHorse = function(result) {
     $bookies.each(function() {
         var $bookie = $(this);
         var bookieName = $bookie.attr('title') || 'NOT FOUND';
-        bookies.push({name: bookieName});
+        var bookie = {name: bookieName};
+        bookies.push(bookie);
+        var bookieId = $bookie.attr('data-bk');
+        if (bookieId) {
+            bookieHash[bookieId] = bookie;
+        }
+    });
+
+    $ewRow.each(function() {
+        var $ew = $(this);
+        var bookieId = $ew.attr('data-bk');
+        if (bookieId) {
+            var bookie = bookieHash[bookieId];
+            if (bookie) {
+                bookie.ew = {
+                    fraction: $ew.attr('data-ew-div').replace(/(1)\/([0-9])/gi, '$2'),
+                    places: $ew.attr('data-ew-places')
+                }
+            }
+        }
     });
 
     $rows.each(function() {
