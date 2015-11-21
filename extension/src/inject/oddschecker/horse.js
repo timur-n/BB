@@ -1,11 +1,11 @@
 if (!window.__karma__) {
     if (window.bb_getScraperName) {
-        throw new Error('bb_getScraperName already registered (Oddschecker)');
+        throw new Error('bb_getScraperName already registered (Oddschecker horse)');
     }
-    window.bb_getScraperName = 'bb_getOddscheker';
+    window.bb_getScraperName = 'bb_getOddschekerHorse';
 }
 
-window.bb_getOddscheker = function(result) {
+window.bb_getOddschekerHorse = function(result) {
     result = result || {};
 
     //result.bookies = result.bookies || {};
@@ -19,6 +19,7 @@ window.bb_getOddscheker = function(result) {
     result.event = result.event || {};
     result.event.name = $('.nav-popout.selected').clone().children().remove().end().text();
     result.event.time = $('.event li.selected a').text();
+    result.source = "oddschecker";
 
     $bookies.each(function() {
         var $bookie = $(this);

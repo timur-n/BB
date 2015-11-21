@@ -10,14 +10,28 @@ function register(callback) {
 	dataCallback = callback;
 }
 
-function setBetfairData(url, data) {
-	console.log('setBetfairData', url, data);
-	betfairData[url] = data;
+function getStorageKey(eventId) {
+	return 'bb_betfair-' + eventId;
 }
 
-function getBetfairData(url) {
-	console.log('getBetfairData', url, betfairData[url]);
-	return betfairData[url];
+function setBetfairData(eventId, data) {
+	console.log('setBetfairData', eventId, data);
+	betfairData[eventId] = data;
+	var storage = {};
+	storage[getStorageKey(eventId)] = data;
+	chrome.storage.local.set(storage, function() {
+		console.log('setBetfairData: saved');
+	});
+}
+
+function getBetfairData(eventId, callback) {
+	console.log('getBetfairData', eventId);
+	var key = getStorageKey(eventId);
+	chrome.storage.local.get(key, function(items) {
+		betfairData[eventId] = items[key];
+		console.log('getBetfairData: loaded', betfairData[eventId]);
+		callback(betfairData[eventId]);
+	});
 }
 
 //example of using a message handler from the inject scripts

@@ -3,18 +3,17 @@
 <head>
     <link type="text/css" rel="stylesheet" href="bootstrap.css">
     <link type="text/css" rel="stylesheet" href="dashboard.css">
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <script type="text/javascript" src="angular.js"></script>
     <script type="text/javascript" src="betfair-api.js"></script>
     <script type="text/javascript" src="dashboard.js"></script>
-    <script type="text/javascript" src="processors/qualifier.js"></script>
-    <script type="text/javascript" src="processors/freebet.js"></script>
-    <script type="text/javascript" src="processors/backWinner.js"></script>
+    <script type="text/javascript" src="processors.js"></script>
     <script type="text/javascript" src="app.js"></script>
 </head>
 <body ng-app="BBApp">
 <div id="main-div" ng-controller="MainCtrl">
 <!--
-    <button class="btn" ng-click="testBetfair();">Test betfair</button>
+    <button class="btn" ng-click="testStorage();">Test storage</button>
 -->
     <table class="events">
         <tr>
@@ -30,7 +29,7 @@
                     {{bookie.summary.text}}
                 </a>
             </td>
-            <td>{{event.betfair}}</td>
+            <td><input class="inplace" type="text" ng-model="event.betfair"></td>
         </tr>
     </table>
     <div class="bookie-options" ng-show="!!selectedBookie">
@@ -63,15 +62,29 @@
         </tr>
         <tr ng-repeat="runner in selectedMarket.runners track by $index">
             <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
-            <td class="back-odds">{{runner.backOdds}}</td>
-            <td class="lay-odds">{{runner.layOdds}}<sub>{{runner.lay.bf.size | number:0}}</sub></td>
+            <td class="back-odds">
+                {{runner.backOdds}}
+                <sub ng-show="runner.place" class="place back-odds">{{runner.place.backOdds}}</sub>
+                <a ng-show="runner.locked" title="Locked, click to unlock" ng-click="lockRunnerPrice(runner, false)"><i class="fa fa-lock"></i></a>
+            </td>
+            <td class="lay-odds">
+                {{runner.layOdds}}
+                <sub class="lay-size">{{runner.lay.bf.size | number:0}}</sub>
+                <span ng-show="runner.place" class="place lay-odds">{{runner.place.layOdds}}</span>
+                <sub class="lay-size">{{runner.place.size | number:0}}</sub>
+            </td>
             <td ng-repeat="processor in selectedBookie.processors track by $index"
                 ng-show="processor.enabled"
-                ng-class="{green: runner.result[processor.id].isProfit, yellow: runner.result[processor.id].isOk}">
+                ng-class="{green: runner.result[processor.id].isProfit, yellow: runner.result[processor.id].isOk, lowsize: !runner.result[processor.id].enough}">
                 {{runner.result[processor.id].profit | number:2}}
             </td>
         </tr>
     </table>
+    <div class="runner-options" ng-show="!!selectedRunner">
+        <label for="locked-back-odds">Locked back odds</label>
+        <input id="locked-back-odds" type="text" ng-model="selectedRunner.lockedBackOdds">
+        <button class="btn btn-sm" ng-click="lockRunnerPrice(selectedRunner, true)">Lock</button>
+    </div>
 </div>
 </body>
 </html>

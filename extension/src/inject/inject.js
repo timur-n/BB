@@ -1,6 +1,6 @@
 var counter = 0;
 var polling = true;
-var pollInterval = 5000;
+var pollInterval = 2000;
 var poller;
 
 function readData() {

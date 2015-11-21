@@ -42,8 +42,12 @@
       "js": ["src/inject/skybet/horse.js"]
     },
     {
-      "matches": ["*://www.oddschecker.com/*"],
-      "js": ["src/inject/oddschecker.js"]
+      "matches": ["*://www.oddschecker.com/football/*"],
+      "js": ["src/inject/oddschecker/football.js"]
+    },
+    {
+      "matches": ["*://www.oddschecker.com/horse-racing/*"],
+      "js": ["src/inject/oddschecker/horse.js"]
     }
   ],
   "externally_connectable": {
@@ -52,6 +56,7 @@
   "permissions": [
     "tabs",
     "tts",
+    "storage",
     "https://*.betfair.com/*"
   ]
 }

@@ -1,25 +1,100 @@
+angular.module('mocks', [])
+    .factory('bbStorage', function() {
+        return {
+            set: function() {},
+            get: function() {}
+        };
+    });
+
 describe('Main app', function() {
-    describe('Controller', function() {
-        var $scope, createController, $log, $interval;
+
+    describe('BBUtils', function() {
+
+        var svc;
 
         beforeEach(function() {
-            module('BBApp');
-
-            inject(function ($injector, $rootScope, $controller) {
-                $log = $injector.get('$log');
-                $interval = $injector.get('$interval');
-
-                createController = function () {
-                    $scope = $rootScope.$new();
-                    return $controller('MainCtrl', {
-                        $scope: $scope,
-                        $log: $log,
-                        $interval: $interval
-                    });
-                };
-            });
-            createController();
+            module('BBUtils');
+            var $injector = angular.injector(['BBUtils']);
+            svc = $injector.get('bbUtils');
         });
+
+        describe('indexByValue', function() {
+            it('should find index by integer value', function () {
+                var array = [{id: 1}, {id: 2}, {id: 3}];
+                var i = svc.indexByValue(array, 'id', 3);
+                expect(i).toBe(2);
+                i = svc.indexByValue(array, 'id', 5);
+                expect(i).toBe(-1);
+                i = svc.indexByValue(array, 'none', 3);
+                expect(i).toBe(-1);
+                i = svc.indexByValue([], 'id', 3);
+                expect(i).toBe(-1);
+            });
+
+            it('should find index by bool', function () {
+                var i = svc.indexByValue([{b: false}, {b: false}, {b: true}], 'b', true);
+                expect(i).toBe(2);
+            });
+        });
+
+        describe('objByValue', function() {
+            it('should find object by integer value', function () {
+                var array = [{id: 1}, {id: 2}, {id: 3}];
+                var i = svc.objByValue(array, 'id', 3);
+                expect(i).toBe(array[2]);
+                i = svc.objByValue(array, 'id', 5);
+                expect(i).toBeUndefined();
+                i = svc.objByValue(array, 'none', 3);
+                expect(i).toBeUndefined();
+                i = svc.objByValue([], 'id', 3);
+                expect(i).toBeUndefined();
+            });
+
+            it('should not fail when object does not have given key', function() {
+                var array = [{id: 1}];
+                expect(function() {
+                    var obj = svc.objByValue(array, 'none', 'test');
+                }).not.toThrow();
+            });
+        });
+
+        describe('objByStr', function() {
+            it('should find object by integer value', function () {
+                var array = [{id: 'String 1'}, {id: 'STRING 2'}, {id: 'string 3'}];
+                var i = svc.objByStr(array, 'id', 'String 1');
+                expect(i).toBe(array[0]);
+                i = svc.objByStr(array, 'id', 'String 2');
+                expect(i).toBe(array[1]);
+                i = svc.objByStr(array, 'id', 'STRING 3');
+                expect(i).toBe(array[2]);
+                i = svc.objByValue([], 'id', 'Test');
+                expect(i).toBeUndefined();
+            });
+
+            it('should not fail when object does not have given key', function() {
+                var array = [{id: 1}];
+                expect(function() {
+                    var obj = svc.objByStr(array, 'none', 'test');
+                }).not.toThrow();
+            });
+        });
+    });
+
+    describe('Controller', function() {
+        var $scope, ctrl;
+
+        beforeEach(module('BBApp'));
+        beforeEach(module('mocks'));
+        beforeEach(inject(function($controller, $rootScope, _$log_, _$interval_, _bbStorage_, _bbUtils_) { // inject mocked service
+            $scope = $rootScope.$new();
+            ctrl = $controller('MainCtrl', {
+                $scope: $scope,
+                $log: _$log_,
+                $interval: _$interval_,
+                bbStorage: _bbStorage_,
+                bbUtils: _bbUtils_
+            });
+        }));
 
         it('should determine Smarkets url', function() {
             expect($scope.isSmarkets('http://smarkets.com/event/32323')).toBe(true);
@@ -35,6 +110,10 @@ describe('Main app', function() {
                 bookies: [
                     {
                         name: 'Sky Bet', // name must be in the knownBookies list, otherwise it'll be filtered out
+                        ew: {
+                            fraction: 5,
+                            places: 3
+                        },
                         markets: [
                             {
                                 name: 'market 1',
@@ -57,21 +136,25 @@ describe('Main app', function() {
             var bookie = data.bookies[0];
             expect(bookie.markets.length).toBe(1);
             expect(bookie.markets[0].runners.length).toBe(2);
+            expect(bookie.ew).toBeDefined();
+            expect(bookie.ew.fraction).toBe(5);
+            expect(bookie.ew.places).toBe(3);
         });
 
-        it('should update existing event (bookies data)', function() {
+        it('should update Bookie data in existing event', function() {
+            // Initial state
             $scope.knownBookies = [{name: 'B1'}, {name: 'Sky Bet'}, {name: 'B3'}];
-            var data = simpleData();
-            $scope.events.push({
+            $scope.updateData({
                 id: 1,
-                data: data,
+                data: simpleData(),
                 bookies: [{name: 'B1'}, {name: 'Sky Bet'}, {name: 'B3'}],
                 url: 'http://skybet.com/event/1'
             });
 
+            // Updated state - same data with updated prices
             var tabData = {
                 id: 1,
-                data: data,
+                data: simpleData(),
                 url: 'http://skybet.com/event/1'
             };
             tabData.data.bookies[0].markets[0].runners[0].price = '11';
@@ -92,6 +175,7 @@ describe('Main app', function() {
             //expect(JSON.stringify(b)).toBe(false);
         });
 
+/*
         it('should update existing event (Smarkets)', function() {
             $scope.events.push({
                 id: 1,
@@ -117,15 +201,16 @@ describe('Main app', function() {
             r = b.markets[0].runners[1];
             expect(r.lay.smarkets.price).toBe('200');
         });
+*/
 
-        it('should update existing event (Betfair)', function() {
+        it('should update Betfair data in existing event', function() {
             $scope.updateData({
                 id: 1,
                 data: simpleData(),
-                betfair: '123456',
                 url: 'http://skybet.com/event/1'
             });
             expect($scope.events.length).toBe(1);
+            $scope.events[0].betfair = '123456';
             // Betfair data must match simpleData()
             $scope.updateBetfairData({
                 betfair: '123456',
@@ -164,19 +249,16 @@ describe('Main app', function() {
             // todo-timur: normalize runner names (' etc.)
         });
 
-        it('should add event if not found (bookies data)', function() {
-            $scope.events.push({id: 1});
+        it('should add event if not found', function() {
             var tabData = {
                 id: 2,
                 data: simpleData(),
-                betfair: '1234',
                 url: 'http://skybet.com/event/2'
             };
-            tabData.data.bookies[0].name = 'Bet 365';
 
             $scope.updateData(tabData);
-            expect($scope.events.length).toBe(2);
-            var event = $scope.events[1];
+            expect($scope.events.length).toBe(1);
+            var event = $scope.events[0];
             expect(event.name).toBe('Test Event 10:00');
             expect(event.time).toBe('10:00');
             expect(event.bookies.length).toBe(8);
@@ -186,15 +268,45 @@ describe('Main app', function() {
             expect(bookie.layCommission).toBe(2);
         });
 
+/*
         it('should not add event if not found and Smarkets data', function() {
             $scope.events.push({id: 1});
             $scope.updateData({id: 2, data: 'test', url: 'http://smarkets.com/event/2'});
             expect($scope.events.length).toBe(1);
             expect($scope.events[0].id).toBe(1);
         });
+*/
 
         it('should apply selected processors', function() {
 
         });
+
+        it('should lock a runner price', function() {
+            $scope.updateData({
+                id: 1,
+                data: simpleData()
+            });
+            var runner = $scope.events[0].bookies[1].markets[0].runners[0];
+            expect(runner.backOdds).toBe('10.00');
+            var tabData = {
+                id: 1,
+                data: simpleData()
+            };
+            tabData.data.bookies[0].markets[0].runners[0].price = '11/1';
+            $scope.updateData(tabData);
+            expect(runner.backOdds).toBe('12.00');
+
+            runner.lockedBackOdds = '15';
+            $scope.lockRunnerPrice(runner, true);
+            expect(runner.backOdds).toBe('15.00');
+
+            tabData = {
+                id: 1,
+                data: simpleData()
+            };
+            tabData.data.bookies[0].markets[0].runners[0].price = '4/1';
+            $scope.updateData(tabData);
+            expect(runner.backOdds).toBe('15.00');
+        })
     });
 });

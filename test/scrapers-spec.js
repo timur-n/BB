@@ -23,7 +23,7 @@ describe('Scrapers', function() {
             $('body').append($(html));
 
             var result = {};
-            window.bb_getOddscheker(result);
+            window.bb_getOddschekerHorse(result);
             expect(result.event).toBeDefined();
             expect(result.event.name).toBe('Leicester');
             expect(result.event.time).toBe('14:45');

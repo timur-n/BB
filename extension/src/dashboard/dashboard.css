@@ -30,7 +30,7 @@ a[ng-click] {
 .yellow {
     background-color: beige;
 }
-.bookie-options {
+.bookie-options, .runner-options {
     padding: 5px;
 }
 .bookie-options input[type=number] {
@@ -53,9 +53,12 @@ a[ng-click] {
 .lay-odds {
     background-color: lightpink;
 }
-.lay-odds sub {
-    margin-left: 10px;
+sub, .lay-odds span.place, .back-odds .fa {
+    margin-left: 5px;
     color: gray;
+}
+sub.lay-odds {
+    font-size: 0.9em;
 }
 label, input[type=checkbox] {
     vertical-align: middle;
@@ -73,4 +76,11 @@ label, input[type=checkbox] {
 }
 th {
     background-color: #cdcdcd;
+}
+#locked-back-odds {
+    width: 70px;
+}
+.lowsize {
+    text-decoration: line-through;
+    color: #c0c0c0;
 }
