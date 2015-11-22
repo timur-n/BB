@@ -68,7 +68,7 @@ angular.module('BBUtils', [])
             },
             normalizePrice: normalizePrice,
             getPlaceOdds: function(winPrice, ew) {
-                return ew && (normalizePrice(winPrice) * 1.0 - 1) / ew.fraction + 1;
+                return ew && ((normalizePrice(winPrice) * 1.0 - 1) / ew.fraction + 1);
             }
         }
     }]);
@@ -137,6 +137,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     }
                     // todo-timur: find best lay odds (betfair/smarkets)
                     runner.layOdds = bbUtils.normalizePrice(runner.lay && runner.lay.bf && runner.lay.bf.price);
+                    runner.size = runner.lay && runner.lay.bf && runner.lay.bf.size;
                     runner.result = runner.result || {};
                     if (bookie.processors) {
                         bookie.processors.forEach(function (processor) {
@@ -144,15 +145,12 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                 runner.result[processor.id] = processor.func(runner, bookie.backStake, bookie.layCommission, bookie);
                                 var result = runner.result[processor.id];
 
-                                if (processor.enabled && result) {
+                                if (processor.enabled && result && result.enough) {
                                     isProfit = isProfit || result.isProfit;
                                     isOk = isOk || result.isOk;
                                     if (result.isProfit || result.isOk) {
                                         max = Math.max(max, result.profit);
                                     }
-                                }
-                                if (runner.lay && runner.lay.bf && result) {
-                                    result.enough = runner.lay.bf.size >= result.layStake;
                                 }
                             }
                         });
@@ -160,7 +158,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 });
             });
             bookie.summary = {
-                text: max > -100 ? max.toFixed(2) : '#',
+                text: max > -100 ? max.toFixed(2) : '-',
                 isProfit: isProfit,
                 isOk: isOk && !isProfit
             };
@@ -236,6 +234,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 var oldBookie = bbUtils.objByStr(event.bookies, 'name', newBookie.name);
                 if (oldBookie) {
                     oldBookie.tabId = tabData.id;
+                    oldBookie.ew = newBookie.ew;
                     $scope.updateBookiePrices(oldBookie, newBookie, dataTypes.back);
                 }
             });
@@ -257,7 +256,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                             {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: true},
                             {name: 'Freebet', id: 'snr', func: bbProcessors.freeSnr, enabled: true},
                             {name: 'Each way', id: 'ew', func: bbProcessors.eachWay, enabled: true},
-                            {name: 'Winner', id: 'winner', func: bbProcessors.backWinner, enabled: true}
+                            {name: 'Winner', id: 'winner', func: bbProcessors.backWinner, enabled: false}
                         ],
                         summary: {}
                     }
@@ -292,11 +291,9 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 event.url = tabData.url;
                 event.name = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);
                 updateBookies(event, tabData);
-/*
-                if (event.betfair) {
-                    bbStorage.set(event.id, event.betfair);
-                }
-*/
+                $scope.events.sort(function(a, b) {
+                    return a.time > b.time ? 1 : a.time < b.time ? -1 : 0;
+                });
                 bbStorage.set(event.id, event);
             }
 
@@ -304,10 +301,18 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             $scope.$apply();
         };
 
+        function getInterval(date) {
+            var now = new Date();
+            return now.getTime() - (date ? date.getTime() : 0);
+        }
+
         $scope.updateBetfairData = function(betfairData) {
             $log.debug('++ Received betfair data', betfairData);
             var event = bbUtils.objByStr($scope.events, 'betfair', betfairData.betfair);
             if (event) {
+                event.betfairCount = event.betfair.split(',').length;
+                event.betfairOk = getInterval(event.betfairLastUpdate) < $scope.betfairPollInterval * 2;
+                event.betfairLastUpdate = new Date();
                 event.bookies.forEach(function(bookie) {
                     $scope.updateBookiePrices(bookie, betfairData, dataTypes.betfair);
                 });
