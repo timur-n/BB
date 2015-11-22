@@ -15,13 +15,19 @@ td, th {
     border-bottom: 1px solid grey;
 }
 
+table div.dropdown {
+    display: inline-block;
+}
+
 
 .event-name {
     max-width: 80%;
 }
+/*
 .event-options input {
     width: 50px;
 }
+*/
 .selected {
     background-color: #add8e6;
 }
@@ -80,6 +86,12 @@ sub.lay-odds {
 label, input[type=checkbox] {
     vertical-align: middle;
     margin: 0;
+}
+.events-container, .markets-container {
+    float: left;
+}
+.markets-container {
+    margin-left: 20px;
 }
 .events td {
     /*opacity: 0.7;*/
