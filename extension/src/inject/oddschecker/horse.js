@@ -14,7 +14,7 @@ window.bb_getOddschekerHorse = function(result) {
 
     var $ = jQuery,
         $bookies = $('.eventTable .eventTableHeader td aside a'),
-        $rows = $('.eventTable .eventTableRow'),
+        $rows = $('.eventTable .eventTableRow,.eventTable .eventTableRowNonRunner'),
         $ewRow = $('#etfEW td[data-ew-div]');
 
     result.event = result.event || {};
