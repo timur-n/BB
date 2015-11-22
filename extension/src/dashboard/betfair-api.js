@@ -264,6 +264,8 @@ function createBetfair() {
         if (market.eventType && market.eventType.id === eventTypes.horseRaces) {
             if (market.marketName === 'To Be Placed') {
                 return 'Place';
+            } else if (/[1-9] TBP/gi.test(market.marketName)) {
+                return 'Place';
             } else if (market.marketName === 'Each Way') {
                 return market.marketName;
             } else {
