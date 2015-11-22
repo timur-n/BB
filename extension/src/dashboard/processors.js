@@ -25,6 +25,7 @@ angular.module('BBProcessors', [])
 
             result.isProfit = result.profit >= 0;
             result.isOk = !result.isProfit && (Math.abs(result.profit) / backStake < 0.1);
+            result.enough = runner.size >= result.layStake;
 
             return result;
         }
@@ -55,6 +56,7 @@ angular.module('BBProcessors', [])
 
             result.isProfit = false;
             result.isOk = false;
+            result.enough = runner.size >= result.layStake;
 
             return result;
         }
