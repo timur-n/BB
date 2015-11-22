@@ -1,6 +1,5 @@
 table {
     border-bottom: 1px solid grey;
-    border-collapse: separate;
 }
 table table {
     border: none;
@@ -9,17 +8,29 @@ td, th {
     border: 1px solid transparent;
     padding: 2px 5px;
 }
+.events {
+    border-collapse: separate;
+}
+.runner-list td {
+    border-bottom: 1px solid grey;
+}
+
+
 .event-name {
     max-width: 80%;
+}
+.event-options input {
+    width: 50px;
 }
 .selected {
     background-color: #add8e6;
 }
 .market-list {
-    list-style: none;
+    list-style-type: none;
+    padding: 0 5px;
 }
 .market-list li {
-    float: left;
+    display: inline-block;
 }
 a[ng-click] {
     cursor: pointer;
@@ -48,14 +59,20 @@ a[ng-click] {
     margin-right: 10px;
 }
 .back-odds {
-    background-color: lightblue;
+    background-color: #c9edf7;
 }
 .lay-odds {
-    background-color: lightpink;
+    background-color: #f4cccc;
 }
-sub, .lay-odds span.place, .back-odds .fa {
+sub, span.place, .back-odds .fa {
     margin-left: 5px;
     color: gray;
+}
+span.place.back-odds {
+    display: block;
+}
+span.place {
+    font-size: 0.9em;
 }
 sub.lay-odds {
     font-size: 0.9em;
@@ -83,4 +100,13 @@ th {
 .lowsize {
     text-decoration: line-through;
     color: #c0c0c0;
+}
+label {
+    font-weight: normal;
+    color: #737373;
+}
+input[type=text], input[type=number] {
+    border-radius: 3px;
+    border: 1px solid #c0c0c0;
+    padding: 0 2px;
 }
