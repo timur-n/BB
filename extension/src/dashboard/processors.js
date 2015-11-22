@@ -82,6 +82,7 @@ angular.module('BBProcessors', [])
                 profit: winResult.profit + placeResult.profit
             };
             result.isProfit = result.profit >= 0;
+            result.enough = winResult.enough && placeResult.enough;
             return result;
         }
 
