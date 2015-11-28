@@ -122,3 +122,44 @@ input[type=text], input[type=number] {
     border: 1px solid #c0c0c0;
     padding: 0 2px;
 }
+.badge {
+    color: #737373;
+}
+.direct {
+    border-bottom: 1px solid red;
+}
+.bookie-header {
+    min-width: 40px;
+    text-align: center;
+}
+.bookie {
+    background-image: url('./allbookie_90.gif');
+    background-repeat: no-repeat;
+    width: 17px;
+    height: 54px;
+    display: inline-block;
+}
+.bookie.B365 {
+    background-position: -323px 0;
+}
+.bookie.Sky {
+    background-position: -68px 0;
+}
+.bookie.BFSB {
+    background-position: -272px 0;
+}
+.bookie.BVic {
+    background-position: -34px 0;
+}
+.bookie.Paddy {
+    background-position: -119px 0;
+}
+.bookie.Coral {
+    background-position: -204px 0;
+}
+.bookie.WH {
+    background-position: 0 0;
+}
+.bookie.Lads {
+    background-position: -153px 0;
+}
