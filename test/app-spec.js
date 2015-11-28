@@ -101,11 +101,11 @@ describe('Main app', function() {
             expect($scope.isSmarkets('http://skybet.com/event/32323')).toBe(false);
         });
 
-        function simpleData() {
+        function simpleData(time) {
             return {
                 event: {
                     name: 'Test Event',
-                    time: '10:00'
+                    time: time || '10:00'
                 },
                 bookies: [
                     {
@@ -175,34 +175,6 @@ describe('Main app', function() {
             //expect(JSON.stringify(b)).toBe(false);
         });
 
-/*
-        it('should update existing event (Smarkets)', function() {
-            $scope.events.push({
-                id: 1,
-                data: simpleData(),
-                smarkets: {url: 'http://smarkets.com/event/1'}
-            });
-            var smarketsData = {
-                id: 10, // different tab
-                data: simpleData().bookies[0],
-                url: 'http://smarkets.com/event/1'
-            };
-            smarketsData.data.name = 'smarkets';
-            smarketsData.data.markets[0].runners[0].price = '100';
-            smarketsData.data.markets[0].runners[1].price = '200';
-            $scope.updateData(smarketsData);
-            expect($scope.events.length).toBe(1);
-            expect($scope.events[0].data.bookies.length).toBe(1);
-            var b = $scope.events[0].data.bookies[0];
-            expect(b.markets.length).toBe(1);
-            expect(b.markets[0].runners.length).toBe(2);
-            var r = b.markets[0].runners[0];
-            expect(r.lay.smarkets.price).toBe('100');
-            r = b.markets[0].runners[1];
-            expect(r.lay.smarkets.price).toBe('200');
-        });
-*/
-
         it('should update Betfair data in existing event', function() {
             $scope.updateData({
                 id: 1,
@@ -268,20 +240,21 @@ describe('Main app', function() {
             expect(bookie.layCommission).toBe(2);
         });
 
-/*
-        it('should not add event if not found and Smarkets data', function() {
-            $scope.events.push({id: 1});
-            $scope.updateData({id: 2, data: 'test', url: 'http://smarkets.com/event/2'});
-            expect($scope.events.length).toBe(1);
-            expect($scope.events[0].id).toBe(1);
-        });
-*/
-
         it('should apply selected processors', function() {
-
+            $scope.updateData({
+                id: 1,
+                data: simpleData()
+            });
+            expect($scope.events.length).toBe(1);
+            var event = $scope.events[0];
+            expect(event.bookies.length).toBe($scope.knownBookies.length);
+            var bookie = event.bookies[1];
+            expect(bookie.name).toBe('Sky Bet');
+            expect(bookie.processors).toBeDefined();
+            expect(bookie.processors.length > 0).toBeTruthy();
         });
 
-        it('should lock a runner price', function() {
+        it('should allow locking runner price', function() {
             $scope.updateData({
                 id: 1,
                 data: simpleData()
@@ -307,6 +280,23 @@ describe('Main app', function() {
             tabData.data.bookies[0].markets[0].runners[0].price = '4/1';
             $scope.updateData(tabData);
             expect(runner.backOdds).toBe('15.00');
-        })
+        });
+
+        it('should remove event if there are no tabs streaming its data', function() {
+            $scope.updateData({
+                id: 100,
+                data: simpleData()
+            });
+            $scope.updateData({
+                id: 200,
+                data: simpleData('12:00') // make this event 2nd after sorting
+            });
+            var bookie = $scope.events[0].bookies[1];
+            expect(bookie.name).toBe('Sky Bet'); // just sanity check
+            expect(bookie.tabId).toBe(100);
+            $scope.removeTab(100);
+            expect($scope.events.length).toBe(1);
+            expect($scope.events[0].time).toBe('12:00');
+        });
     });
 });

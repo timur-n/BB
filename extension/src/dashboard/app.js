@@ -86,7 +86,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.betfair = createBetfair();
         $scope.betfairPollInterval = 5000;
         $scope.knownBookies = [
-            {name: 'Bet 365', short: '365'},
+            {name: 'Bet 365', short: 'B365'},
             {name: 'Sky Bet', short: 'Sky'},
             {name: 'Ladbrokes', short: 'Lads'},
             {name: 'Betfair Sportsbook', short: 'BFSB'},
@@ -233,10 +233,24 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             tabData.data.bookies.forEach(function(newBookie) {
                 var oldBookie = bbUtils.objByStr(event.bookies, 'name', newBookie.name);
                 if (oldBookie) {
+                    var isDirect = tabData.data.source !== 'oddschecker';
                     oldBookie.tabId = tabData.id;
                     oldBookie.ew = newBookie.ew;
-                    $scope.updateBookiePrices(oldBookie, newBookie, dataTypes.back);
+                    if (!oldBookie.isDirect || isDirect) {
+                        $scope.updateBookiePrices(oldBookie, newBookie, dataTypes.back);
+                        oldBookie.isDirect = isDirect;
+                    }
                 }
+            });
+        }
+
+        function normalizeData(tabData) {
+            tabData.data.bookies.forEach(function(bookie) {
+                bookie.markets.forEach(function(market) {
+                    market.runners.forEach(function(runner) {
+                        runner.name = runner.name.replace(/'/gi, '');
+                    });
+                });
             });
         }
 
@@ -290,6 +304,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             if (event) {
                 event.url = tabData.url;
                 event.name = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);
+                normalizeData(tabData);
                 updateBookies(event, tabData);
                 $scope.events.sort(function(a, b) {
                     return a.time > b.time ? 1 : a.time < b.time ? -1 : 0;
@@ -319,8 +334,20 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
         };
 
+        // for each event check if it has a bookie with this tab,
+        // then clear the tabId and if that event doesn't have bookies with tabId, remove the event
         $scope.removeTab = function(tabId) {
-            // todo-timur: for each event check if it has a bookie with this tab, then clear the tabId and if that event doesn't have bookies with tabId, remove the event
+            $scope.events = $scope.events.filter(function(event) {
+                var hasOpenTabs = false;
+                event.bookies.forEach(function(bookie) {
+                    if (bookie.tabId === tabId) {
+                        bookie.tabId = false;
+                    } else {
+                        hasOpenTabs = hasOpenTabs || !!bookie.tabId;
+                    }
+                });
+                return hasOpenTabs;
+            });
         };
 
         $scope.testBetfair = function() {
