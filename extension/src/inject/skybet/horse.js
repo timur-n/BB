@@ -41,9 +41,15 @@ window.bb_getSkyHorse = function() {
         }
     });
 
+    var time = $('.breadcrumb span.strong').text().trim().split(':');
+    time[0] *= 1;
+    if (time[0] < 10) {
+        time[0] += 12;
+    }
+    time[0] += '';
     result.event = {
         name: $('.breadcrumb a[data-analytics*=Event]').text().trim(),
-        time: $('.breadcrumb span.strong').text().trim()
+        time: time.join(':')
     };
     result.bookies = [{name: 'Sky Bet', markets: []}];
     result.bookies[0].markets.push(market);
