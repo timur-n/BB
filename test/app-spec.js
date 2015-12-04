@@ -78,6 +78,14 @@ describe('Main app', function() {
                 }).not.toThrow();
             });
         });
+
+        describe('getMarketIds', function() {
+            it('should allow URLs separated by new line', function() {
+                var str = 'https://www.betfair.com/exchange/plus/#/horse-racing/market/1.122124024\nhttps://www.betfair.com/exchange/plus/#/horse-racing/market/1.122124025?nodeId=27619263';
+                var result = svc.getMarketIds(str);
+                expect(result).toBe('1.122124024,1.122124025');
+            });
+        });
     });
 
     describe('Controller', function() {
@@ -173,6 +181,7 @@ describe('Main app', function() {
             r = b.markets[0].runners[1];
             expect(r.price).toBe('21');
             //expect(JSON.stringify(b)).toBe(false);
+            // todo-timur: normalize runner names (' etc.)
         });
 
         it('should update Betfair data in existing event', function() {
@@ -217,8 +226,6 @@ describe('Main app', function() {
             expect(runner.layOdds).toBe('11.00');
             runner = market.runners[1];
             expect(runner.name).toBe('runner 2');
-
-            // todo-timur: normalize runner names (' etc.)
         });
 
         it('should add event if not found', function() {
@@ -233,11 +240,11 @@ describe('Main app', function() {
             var event = $scope.events[0];
             expect(event.name).toBe('Test Event 10:00');
             expect(event.time).toBe('10:00');
-            expect(event.bookies.length).toBe(8);
+            expect(event.bookies.length).toBe($scope.knownBookies.length);
             var bookie = event.bookies[0];
             expect(bookie.name).toBe('Bet 365');
             expect(bookie.backStake).toBe(10);
-            expect(bookie.layCommission).toBe(2);
+            expect(bookie.layCommission).toBe(5);
         });
 
         it('should apply selected processors', function() {

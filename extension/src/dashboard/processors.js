@@ -9,6 +9,7 @@ angular.module('BBProcessors', [])
                     backStake: backStake,
                     profit: NaN,
                     isProfit: false,
+                    layOdds: runner.layOdds,
                     valid: true
                 };
 
@@ -37,6 +38,7 @@ angular.module('BBProcessors', [])
                     backStake: backStake,
                     profit: NaN,
                     isProfit: false,
+                    layOdds: runner.layOdds,
                     valid: true
                 };
 
@@ -81,9 +83,13 @@ angular.module('BBProcessors', [])
             var result = {
                 win: winResult,
                 place: placeResult,
+                layOdds: winResult.layOdds + ' / ' + placeResult.layOdds,
+                layStake: winResult.layStake + ' / ' + placeResult.layStake,
+                liability: winResult.liability + ' / ' + placeResult.liability,
                 profit: winResult.profit + placeResult.profit
             };
             result.isProfit = result.profit >= 0;
+            result.isOk = !result.isProfit && (Math.abs(result.profit) / backStake < 0.1);
             result.enough = winResult.enough && placeResult.enough;
             return result;
         }

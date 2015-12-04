@@ -1,7 +1,7 @@
 angular.module('BBStorage', [])
     .factory('bbStorage', ['$log', function($log) {
         return {
-            set: function (name, value) {
+            set: function(name, value) {
                 $log.debug('bb-storage.set()', name, value);
                 var storage = {};
                 storage[name] = value;
@@ -9,12 +9,15 @@ angular.module('BBStorage', [])
                     $log.debug('bb-storage.set(): saved');
                 });
             },
-            get: function (name, callback) {
+            get: function(name, callback) {
                 $log.debug('bb-storage.get()', name);
                 chrome.storage.local.get(name, function(items) {
                     $log.debug('bb-storage.get(): loaded', items[name]);
                     callback(items[name]);
                 });
+            },
+            clean: function() {
+                chrome.storage.local.clear();
             }
         };
     }]);
@@ -69,6 +72,12 @@ angular.module('BBUtils', [])
             normalizePrice: normalizePrice,
             getPlaceOdds: function(winPrice, ew) {
                 return ew && ((normalizePrice(winPrice) * 1.0 - 1) / ew.fraction + 1);
+            },
+            getMarketIds: function(str) {
+                return str.replace(/([a-z./:#-]*market\/)([0-9.]*)([?a-z=0-9]*)/gmi, '$2').replace('\n', ',');
+            },
+            getMarketCount: function(str) {
+                return this.getMarketIds(str).split(',').length;
             }
         }
     }]);
@@ -85,10 +94,11 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.events = [];
         $scope.betfair = createBetfair();
         $scope.betfairPollInterval = 5000;
+        $scope.maxOdds = 30;
         $scope.knownBookies = [
             {name: 'Bet 365', short: 'B365'},
             {name: 'Sky Bet', short: 'Sky'},
-            {name: 'Ladbrokes', short: 'Lads'},
+            //{name: 'Ladbrokes', short: 'Lads'},
             {name: 'Betfair Sportsbook', short: 'BFSB'},
             {name: 'Paddy Power', short: 'Paddy'},
             {name: 'Bet Victor', short: 'BVic'},
@@ -106,7 +116,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $interval(function() {
             $scope.events.forEach(function(event) {
                 if (event.betfair) {
-                    $scope.betfair.getMarketPrices(event.betfair, function(data) {
+                    var marketIds = bbUtils.getMarketIds(event.betfair);
+                    $scope.betfair.getMarketPrices(marketIds, function(data) {
                         data.betfair = event.betfair;
                         $scope.updateBetfairData(data);
                     })
@@ -264,7 +275,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     return {
                         name: knownBookie.name,
                         backStake: 10,
-                        layCommission: 2,
+                        layCommission: 5,
                         backWinnerTerms: 0,
                         processors: [
                             {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: true},
@@ -325,7 +336,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             $log.debug('++ Received betfair data', betfairData);
             var event = bbUtils.objByStr($scope.events, 'betfair', betfairData.betfair);
             if (event) {
-                event.betfairCount = event.betfair.split(',').length;
+                event.betfairCount = bbUtils.getMarketCount(event.betfair);
                 event.betfairOk = getInterval(event.betfairLastUpdate) < $scope.betfairPollInterval * 2;
                 event.betfairLastUpdate = new Date();
                 event.bookies.forEach(function(bookie) {
@@ -381,8 +392,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     $scope.selectMarket($scope.selectedBookie.markets[0]);
                 } else {
                     $scope.selectMarket(false);
-                    $scope.selectRunner(false);
                 }
+                $scope.selectRunner(false);
             }
         };
 
@@ -409,10 +420,25 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
         };
 
+        $scope.toggleRunnerExcluded = function(runner) {
+            if (runner.lockedBackOdds === 0) {
+                runner.lockedBackOdds = runner.price;
+                $scope.lockRunnerPrice(runner, false);
+            } else {
+                runner.lockedBackOdds = 0;
+                $scope.lockRunnerPrice(runner, true);
+            }
+        };
+
         $scope.testStorage = function() {
             bbStorage.set('bbTest', {id: 123, obj: {id: 1, name: 'test'}, arr: [{name: 'a1'}, {name: 'a2'}]});
             bbStorage.get('bbTest', function(value) {
                 $log.debug('testStorage.get(): ', value);
             })
-        }
+        };
+
+        $scope.resetStorage = function() {
+            bbStorage.clean();
+        };
+
     }]);

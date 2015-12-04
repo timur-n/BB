@@ -14,9 +14,11 @@
 </head>
 <body ng-app="BBApp">
 <div id="main-div" ng-controller="MainCtrl">
-<!--
-    <button class="btn" ng-click="testStorage();">Test storage</button>
--->
+    <div class="main-toolbar">
+        <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
+        <label for="max-odds">Max odds</label>
+        <input class="number-std" id="max-odds" type="text" ng-model="maxOdds">
+    </div>
     <div class="events-container">
         <table class="events">
             <thead>
@@ -42,7 +44,7 @@
                         <div class="dropdown">
                             <button data-toggle="dropdown" class="btn btn-xs"><i class="fa fa-pencil"></i></button>
                             <ul class="dropdown-menu">
-                                <li><input type="text" ng-model="event.betfair"></li>
+                                <li><textarea class="betfair-ids" ng-model="event.betfair"></textarea></li>
                             </ul>
                         </div>
                     </td>
@@ -108,6 +110,25 @@
             <label for="locked-back-odds">Locked back odds</label>
             <input id="locked-back-odds" type="text" ng-model="selectedRunner.lockedBackOdds">
             <button class="btn btn-sm" ng-click="lockRunnerPrice(selectedRunner, true)">Lock</button>
+            <button class="btn btn-sm" ng-click="toggleRunnerExcluded(selectedRunner)">On/Off</button>
+            <div class="lay-info">
+                <h3>
+                    {{selectedRunner.name}}
+                    <span class="back-odds">&pound;{{selectedBookie.backStake}}</span>
+                    <span class="subtle">@</span>
+                    <span class="lay-comm" ng-class="{smarkets: selectedBookie.layCommission == 2}"></span>
+                </h3>
+                <div class="processor-info"
+                ng-repeat="processor in selectedBookie.processors track by $index"
+                ng-show="processor.enabled"
+                ng-class="{green: selectedRunner.result[processor.id].isProfit, yellow: selectedRunner.result[processor.id].isOk, lowsize: !selectedRunner.result[processor.id].enough}">
+                    {{processor.name}}:
+                    lay <span class="badge lay-odds">{{selectedRunner.result[processor.id].layStake}}</span>
+                    @ {{selectedRunner.result[processor.id].layOdds}},
+                    liability <span class="badge liability">{{selectedRunner.result[processor.id].liability}}</span>
+                    for <span class="badge red" ng-class="{green: selectedRunner.result[processor.id].profit >= 0}">{{selectedRunner.result[processor.id].profit | number:2}}</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>

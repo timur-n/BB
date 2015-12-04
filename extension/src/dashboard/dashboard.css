@@ -41,6 +41,9 @@ table div.dropdown {
 a[ng-click] {
     cursor: pointer;
 }
+.red {
+    background-color: lightcoral;
+}
 .green {
     background-color: lightgreen;
 }
@@ -106,8 +109,8 @@ label, input[type=checkbox] {
 th {
     background-color: #cdcdcd;
 }
-#locked-back-odds {
-    width: 70px;
+.number-std, #locked-back-odds {
+    width: 60px;
 }
 .lowsize {
     text-decoration: line-through;
@@ -124,6 +127,15 @@ input[type=text], input[type=number] {
 }
 .badge {
     color: #737373;
+}
+.lay-info .badge {
+    color: black;
+}
+.processor-info {
+    margin: 10px 0;
+}
+.liability {
+    background-color: #ebebeb;
 }
 .direct {
     border-bottom: 1px solid red;
@@ -162,4 +174,29 @@ input[type=text], input[type=number] {
 }
 .bookie.Lads {
     background-position: -153px 0;
+}
+.betfair-ids {
+    width: 500px;
+    height: 50px;
+    font-size: 10px;
+    white-space: nowrap;
+}
+.subtle {
+    color: lightgray;
+}
+.lay-info h3 span {
+    padding: 0 10px;
+}
+.lay-comm {
+    background-color: #ffb80c;
+}
+.lay-comm.smarkets {
+    background-color: #00b073;
+    color: white;
+}
+.lay-comm:after {
+    content: "Betfair";
+}
+.lay-comm.smarkets:after {
+    content: "Smarkets";
 }
