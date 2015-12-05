@@ -88,8 +88,8 @@ angular.module('BBBetfair', [])
     }]);
 
 angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
-    .controller('MainCtrl', ['$scope', '$log', '$interval', 'bbStorage', 'bbUtils', 'bbProcessors',
-    function($scope, $log, $interval, bbStorage, bbUtils, bbProcessors) {
+    .controller('MainCtrl', ['$scope', '$log', '$interval', 'bbStorage', 'bbUtils', 'bbProcessors', '$http',
+    function($scope, $log, $interval, bbStorage, bbUtils, bbProcessors, $http) {
         $scope.data = 0;
         $scope.events = [];
         $scope.betfair = createBetfair();
@@ -441,4 +441,10 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             bbStorage.clean();
         };
 
+        $scope.sendToCalc = function(runner, processor) {
+            $http.get('http://localhost:7777?b=' + runner.backOdds + '&l=' + runner.layOdds + '&c=' + $scope.selectedBookie.layCommission)
+                .error(function(data, status) {
+                    $log.debug('sendToCalc() error', data, status);
+                });
+        };
     }]);
