@@ -200,3 +200,6 @@ input[type=text], input[type=number] {
 .lay-comm.smarkets:after {
     content: "Smarkets";
 }
+.main-toolbar {
+    margin-bottom: 5px;
+}
