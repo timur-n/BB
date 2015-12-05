@@ -117,6 +117,7 @@
                     <span class="back-odds">&pound;{{selectedBookie.backStake}}</span>
                     <span class="subtle">@</span>
                     <span class="lay-comm" ng-class="{smarkets: selectedBookie.layCommission == 2}"></span>
+                    <a ng-click="sendToCalc(selectedRunner)"><i class="fa fa-calculator"></i></a>
                 </h3>
                 <div class="processor-info"
                 ng-repeat="processor in selectedBookie.processors track by $index"
