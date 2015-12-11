@@ -36,7 +36,7 @@
                     <td ng-repeat="bookie in event.bookies" ng-class="{selected: bookie.selected, green: bookie.summary.isProfit, yellow: bookie.summary.isOk, direct: bookie.isDirect}">
                         <a class="summary"
                            ng-click="selectBookie(event, bookie)">
-                            {{bookie.summary.text}}
+                            {{bookie.summary.text}} <i ng-show="bookie.marked" class="fa fa-star"></i>
                         </a>
                     </td>
                     <td class="event-options">
@@ -65,6 +65,8 @@
                     <input id="{{processor.id + $index}}" type="checkbox" ng-model="processor.enabled">
                 </li>
             </ul>
+            <label for="marked">Star</label>
+            <input id="marked" type="checkbox" ng-model="selectedBookie.marked">
         </div>
     </div>
     <div class="markets-container">
