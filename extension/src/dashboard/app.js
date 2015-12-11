@@ -303,6 +303,12 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                 if (newBookie) {
                                     newBookie.layCommission = oldBookie.layCommission;
                                     newBookie.backStake = oldBookie.backStake;
+                                    newBookie.marked = oldBookie.marked;
+                                    for (var i = 0; i < newBookie.processors.length; i += 1) {
+                                        if (i < oldBookie.processors.length) {
+                                            newBookie.processors[i].enabled = oldBookie.processors[i].enabled;
+                                        }
+                                    }
                                 }
                             });
                         }
