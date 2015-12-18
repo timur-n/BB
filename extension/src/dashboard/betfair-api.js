@@ -136,6 +136,15 @@ function matchMarketsAndPrices(markets, prices) {
 
     }
 
+    function renameRunner(name, marketInfo) {
+        if (marketInfo.eventType && marketInfo.eventType.id === eventTypes.football) {
+            if (name === 'The Draw') {
+                return 'Draw';
+            }
+        }
+        return name;
+    }
+
     if (Array.isArray(markets) && Array.isArray(prices)) {
         prices.forEach(function (marketData) {
             var marketId = marketData.marketId,
@@ -164,7 +173,7 @@ function matchMarketsAndPrices(markets, prices) {
                         }
                         if (marketRunner) {
                             var r = {
-                                    name: marketRunner.runnerName,
+                                    name: renameRunner(marketRunner.runnerName, marketInfo),
                                     price: price,
                                     size: size
                                 };
@@ -272,7 +281,7 @@ function createBetfair() {
                 return 'Win';
             }
         }
-        return market.name;
+        return market.marketName;
     }
 
     betfair.getPrices = function(params, done) {

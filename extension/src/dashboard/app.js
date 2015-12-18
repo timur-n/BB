@@ -74,7 +74,7 @@ angular.module('BBUtils', [])
                 return ew && ((normalizePrice(winPrice) * 1.0 - 1) / ew.fraction + 1);
             },
             getMarketIds: function(str) {
-                return str.replace(/([a-z./:#-]*market\/)([0-9.]*)([?a-z=0-9]*)/gmi, '$2').replace('\n', ',');
+                return str.replace(/([a-z./:#-]*market\/)([0-9.]*)([?a-z=0-9]*)/gmi, '$2').replace(/\n/gi, ',');
             },
             getMarketCount: function(str) {
                 return this.getMarketIds(str).split(',').length;

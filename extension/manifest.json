@@ -42,6 +42,10 @@
       "js": ["src/inject/skybet/horse.js"]
     },
     {
+      "matches": ["*://www.skybet.com/football/*"],
+      "js": ["src/inject/skybet/football.js"]
+    },
+    {
       "matches": ["*://www.oddschecker.com/football/*"],
       "js": ["src/inject/oddschecker/football.js"]
     },

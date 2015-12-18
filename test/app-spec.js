@@ -85,6 +85,12 @@ describe('Main app', function() {
                 var result = svc.getMarketIds(str);
                 expect(result).toBe('1.122124024,1.122124025');
             });
+
+            it('should allow more than 2 URLs separated by new line', function() {
+                var str = 'https://www.betfair.com/exchange/plus/#/football/market/1.122285642\nhttps://www.betfair.com/exchange/plus/#/football/market/1.122285637\nhttps://www.betfair.com/exchange/plus/#/football/market/1.122285639';
+                var result = svc.getMarketIds(str);
+                expect(result).toBe('1.122285642,1.122285637,1.122285639');
+            });
         });
     });
 
