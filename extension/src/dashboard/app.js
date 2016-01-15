@@ -100,6 +100,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             {name: 'Sky Bet', short: 'Sky'},
             //{name: 'Ladbrokes', short: 'Lads'},
             {name: 'Betfair Sportsbook', short: 'BFSB'},
+            {name: 'Betfred', short: 'Bfr'},
             {name: 'Paddy Power', short: 'Paddy'},
             {name: 'Bet Victor', short: 'BVic'},
             {name: 'Coral', short: 'Coral'},
@@ -139,7 +140,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         function recalculate(bookie) {
             var isProfit = false,
                 isOk = false,
-                max = -10000;
+                bestResult;
 
             bookie.markets.forEach(function(market) {
                 market.runners.forEach(function(runner) {
@@ -159,8 +160,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                 if (processor.enabled && result && result.enough) {
                                     isProfit = isProfit || result.isProfit;
                                     isOk = isOk || result.isOk;
-                                    if (result.isProfit || result.isOk) {
-                                        max = Math.max(max, result.profit);
+                                    if (!bestResult || bestResult.profit < result.profit) {
+                                        bestResult = result;
                                     }
                                 }
                             }
@@ -169,7 +170,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 });
             });
             bookie.summary = {
-                text: max > -100 ? max.toFixed(2) : '-',
+                text: !!bestResult ? bestResult.profit.toFixed(2) : '...',
                 isProfit: isProfit,
                 isOk: isOk && !isProfit
             };
@@ -279,7 +280,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         backWinnerTerms: 0,
                         processors: [
                             {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: true},
-                            {name: 'Freebet', id: 'snr', func: bbProcessors.freeSnr, enabled: true},
+                            {name: 'Freebet', id: 'snr', func: bbProcessors.freeSnr, enabled: false},
                             {name: 'Each way', id: 'ew', func: bbProcessors.eachWay, enabled: true},
                             {name: 'Winner', id: 'winner', func: bbProcessors.backWinner, enabled: false}
                         ],

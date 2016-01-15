@@ -175,6 +175,9 @@ input[type=text], input[type=number] {
 .bookie.Lads {
     background-position: -153px 0;
 }
+.bookie.Bfr {
+    background-position: -170px 0;
+}
 .betfair-ids {
     width: 500px;
     height: 50px;
