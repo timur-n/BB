@@ -14,7 +14,9 @@ td, th {
 .runner-list td {
     border-bottom: 1px solid grey;
 }
-
+.extra-place-runners {
+    clear: both;
+}
 table div.dropdown {
     display: inline-block;
 }
@@ -53,7 +55,8 @@ a[ng-click] {
 .bookie-options, .runner-options {
     padding: 5px;
 }
-.bookie-options input[type=number] {
+.bookie-options input[type=number],
+.extra-place-runners input[type=number] {
     width: 50px;
 }
 .bookie-processors {
@@ -184,7 +187,7 @@ input[type=text], input[type=number] {
     font-size: 10px;
     white-space: nowrap;
 }
-.subtle {
+.subtle, .subtle a {
     color: lightgray;
 }
 .lay-info h3 span {
@@ -205,4 +208,21 @@ input[type=text], input[type=number] {
 }
 .main-toolbar {
     margin-bottom: 5px;
+}
+tr.ew-terms {
+    background-color: #cdcdcd;
+}
+.extra-place-runners td,
+.extra-place-runners th {
+    border: 1px solid silver;
+}
+.extra-place-runners td.ew-terms,
+.extra-place-runners td.price {
+    text-align: center;
+}
+.ew-terms p {
+    margin: 0;
+    padding: 0;
+    line-height: 14px;
+    font-size: 12px;
 }

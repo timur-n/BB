@@ -92,6 +92,18 @@ describe('Main app', function() {
                 expect(result).toBe('1.122285642,1.122285637,1.122285639');
             });
         });
+
+        describe('normalizePrice', function() {
+            it('should not display decimals if none', function() {
+                expect(svc.normalizePrice(11.000)).toBe(11);
+            });
+            it('should display decimals when any', function() {
+                expect(svc.normalizePrice(11.500)).toBe(11.5);
+            });
+            it('should display max 2 decimals', function() {
+                expect(svc.normalizePrice(1.2345)).toBe(1.23);
+            });
+        });
     });
 
     describe('Controller', function() {
@@ -183,7 +195,7 @@ describe('Main app', function() {
             expect(b.markets[0].runners.length).toBe(2);
             var r = b.markets[0].runners[0];
             expect(r.price).toBe('11');
-            expect(r.backOdds).toBe('11.00');
+            expect(r.backOdds).toBe(11);
             r = b.markets[0].runners[1];
             expect(r.price).toBe('21');
             //expect(JSON.stringify(b)).toBe(false);
@@ -209,7 +221,7 @@ describe('Main app', function() {
                         runners: [
                             {name: 'runner 3', price: '33', size: 300},
                             {name: 'runner 2', price: '22', size: 200},
-                            {name: 'runner 1', price: '11', size: 100}
+                            {name: 'runner 1', price: '11.5', size: 100}
                         ]
                     }
                 ]
@@ -224,12 +236,12 @@ describe('Main app', function() {
             expect(market.runners.length).toBe(2);
             var runner = market.runners[0];
             expect(runner.name).toBe('runner 1');
-            expect(runner.backOdds).toBe('10.00');
+            expect(runner.backOdds).toBe(10);
             expect(runner.lay).toBeDefined();
             expect(runner.lay.bf).toBeDefined();
-            expect(runner.lay.bf.price).toBe('11');
+            expect(runner.lay.bf.price).toBe('11.5');
             expect(runner.lay.bf.size).toBe(100);
-            expect(runner.layOdds).toBe('11.00');
+            expect(runner.layOdds).toBe(11.5);
             runner = market.runners[1];
             expect(runner.name).toBe('runner 2');
         });
@@ -273,18 +285,18 @@ describe('Main app', function() {
                 data: simpleData()
             });
             var runner = $scope.events[0].bookies[1].markets[0].runners[0];
-            expect(runner.backOdds).toBe('10.00');
+            expect(runner.backOdds).toBe(10);
             var tabData = {
                 id: 1,
                 data: simpleData()
             };
             tabData.data.bookies[0].markets[0].runners[0].price = '11/1';
             $scope.updateData(tabData);
-            expect(runner.backOdds).toBe('12.00');
+            expect(runner.backOdds).toBe(12);
 
             runner.lockedBackOdds = '15';
             $scope.lockRunnerPrice(runner, true);
-            expect(runner.backOdds).toBe('15.00');
+            expect(runner.backOdds).toBe(15);
 
             tabData = {
                 id: 1,
@@ -292,7 +304,7 @@ describe('Main app', function() {
             };
             tabData.data.bookies[0].markets[0].runners[0].price = '4/1';
             $scope.updateData(tabData);
-            expect(runner.backOdds).toBe('15.00');
+            expect(runner.backOdds).toBe(15);
         });
 
         it('should remove event if there are no tabs streaming its data', function() {
@@ -312,49 +324,128 @@ describe('Main app', function() {
             expect($scope.events[0].time).toBe('12:00');
         });
 
-        it('should allow selecting ExtraPlace event', function() {
-            expect($scope.extraPlaceEvent).toBe(false);
-            $scope.updateData({
-                id: 100,
-                data: simpleData()
+        describe('Extra Place view', function() {
+            it('should create EP runner', function() {
+                var runner = $scope.createExtraPlaceRunner('EPRunner');
+                expect(runner.name).toBe('EPRunner');
+                expect(runner.bookies.length).toBe($scope.knownBookies.length);
             });
-            var event = $scope.events[0];
-            $scope.selectExtraPlaceEvent(event);
-            expect($scope.extraPlaceEvent).toBeTruthy();
-            expect($scope.extraPlaceEvent.eventId).toBeTruthy();
-            expect($scope.extraPlaceEvent.eventId).toBe(event.id);
-            var runner = $scope.extraPlaceEvent.runners[0];
-            expect(runner).toBeDefined();
-            expect(runner.name).toBe('runner 1');
-            expect(runner.backStake).toBe(10);
-            expect(runner.allBackOdds).toBeDefined();
-            expect(runner.allBackOdds.length).toBe(1);
-            expect(runner.bestOdds.price).toBe(10);
-            expect(runner.bestOdds.ewFraction).toBe(5);
-            expect(runner.bestOdds.bookies.length).toBe(1);
-            expect(runner.bestOdds.bookies[0]).toBe('Sky Bet');
-            var bookieOdds = runner.allBackOdds[0];
-            expect(bookieOdds.bookieName).toBe('Sky Bet');
-            expect(bookieOdds.backOdds).toBe('10.00');
-        });
 
-        it('should update ExtraPlace price for same bookie', function() {
-            var tabData = {
-                id: 100,
-                data: simpleData()
-            };
-            $scope.updateData(tabData);
-            var event = $scope.events[0];
-            $scope.selectExtraPlaceEvent(event);
+            it('should update EP runner price for bookie', function() {
+                var runner = $scope.createExtraPlaceRunner('EPRunner');
+                var bookie = {
+                    name: 'Sky Bet',
+                    markets: [
+                        {
+                            name: 'Doh'
+                        },
+                        {
+                            name: 'Win',
+                            runners: [
+                                {
+                                    name: 'Dude',
+                                    backOdds: 10
+                                },
+                                {
+                                    name: 'EPRunner',
+                                    backOdds: 15
+                                }
+                            ]
+                        }
+                    ]
+                };
+                runner.updateBackOdds(bookie);
+                var sky = runner.bookies[1];
+                expect(sky.name).toBe('Sky Bet');
+                expect(sky.backOdds).toBe(15);
+                expect(sky.isBest).toBe(true);
+                expect(runner.backOdds).toBe(15);
 
-            tabData = {
-                id: 100,
-                data: simpleData()
-            };
-            tabData.data.bookies[0].markets[0].runners[0].price = '11/1';
-            $scope.updateData(tabData);
+                bookie.markets[1].runners[1].backOdds = 12;
+                runner.updateBackOdds(bookie);
+                sky = runner.bookies[1];
+                expect(sky.isBest).toBe(true);
+                expect(runner.backOdds).toBe(12);
 
-            //expect($scope.extraPlaceEvent.runners[0].price).toBe(12.0);
+                bookie = {
+                    name: 'Bet 365',
+                    markets: [
+                        {
+                            name: 'Win',
+                            runners: [
+                                {
+                                    name: 'EPRunner',
+                                    backOdds: 14
+                                }
+                            ]
+                        }
+                    ]
+                };
+                runner.updateBackOdds(bookie);
+                sky = runner.bookies[1];
+                expect(sky.isBest).toBe(false);
+                var b365 = runner.bookies[0];
+                expect(b365.isBest).toBe(true);
+                expect(runner.backOdds).toBe(14);
+            });
+
+            it('should update lay prices', function() {
+                $scope.updateData({
+                    id: 1,
+                    data: simpleData()
+                });
+
+                var event = $scope.events[0];
+                $scope.selectExtraPlaceEvent(event);
+
+                event.betfair = '123456';
+                // Betfair data must match simpleData()
+                $scope.updateBetfairData({
+                    betfair: '123456',
+                    markets: [
+                        {
+                            event: {},
+                            eventType: {},
+                            name: 'Win',
+                            runners: [
+                                {name: 'runner 3', price: '33', size: 300},
+                                {name: 'runner 2', price: '22', size: 200},
+                                {name: 'runner 1', price: '11.5', size: 100}
+                            ]
+                        },
+                        {
+                            event: {},
+                            eventType: {},
+                            name: 'Place',
+                            runners: [
+                                {name: 'runner 3', price: '13.3', size: 30},
+                                {name: 'runner 2', price: '12.2', size: 20},
+                                {name: 'runner 1', price: '3.5', size: 10}
+                            ]
+                        }
+                    ]
+                });
+
+                var runner = $scope.extraPlaceEvent.runners[0];
+                expect(runner.layOdds).toBe(11.5);
+            });
+
+            it('should allow selecting ExtraPlace event', function() {
+                expect($scope.extraPlaceEvent).toBe(false);
+                $scope.updateData({
+                    id: 100,
+                    data: simpleData()
+                });
+                var event = $scope.events[0];
+                $scope.selectExtraPlaceEvent(event);
+                expect($scope.extraPlaceEvent).toBeTruthy();
+                expect($scope.extraPlaceEvent.eventId).toBeTruthy();
+                expect($scope.extraPlaceEvent.eventId).toBe(event.id);
+                var runner = $scope.extraPlaceEvent.runners[0];
+                expect(runner).toBeDefined();
+                expect(runner.name).toBe('runner 1');
+                expect(runner.backStake).toBe(10);
+            });
         });
     });
 });

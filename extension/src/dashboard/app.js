@@ -47,11 +47,13 @@ angular.module('BBUtils', [])
 
         function normalizePrice(price) {
             var parts = ('' + price).split('/');
+            var price, digits;
             if (parts.length === 2) {
-                return (((+parts[0]) + (+parts[1])) / parts[1]).toFixed(2);
+                price = (((+parts[0]) + (+parts[1])) / parts[1]);
             } else {
-                return (1.0 * price).toFixed(2);
+                price = (1.0 * price);
             }
+            return Math.round(price * 100) / 100;
         }
 
         return {
@@ -112,6 +114,77 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             back: 'back',
             betfair: 'bf',
             smarkets: 'sm'
+        };
+
+        function ExtraPlaceRunner(name, knownBookies) {
+            this.name = name;
+            this.backStake = 10;
+            this.bookies = knownBookies.map(function(bookie) {
+                return {
+                    name: bookie.name,
+                    short: bookie.short,
+                    ew: {
+                        fraction: 100
+                    }
+                }
+            });
+        }
+        ExtraPlaceRunner.prototype.recalculate = function() {
+            this.backOdds = 0;
+            var bestEwFraction = 100;
+            this.bookies.forEach(function(bookie) {
+                bookie.isBest = false;
+                var price = bookie.backOdds * 1.0;
+                if (price > this.backOdds && bookie.ew.fraction <= bestEwFraction) {
+                    this.backOdds = price;
+                    bestEwFraction = bookie.ew.fraction;
+                }
+            }, this);
+            this.bookies.forEach(function(bookie) {
+                var price = bookie.backOdds * 1.0;
+                if (price === this.backOdds && bookie.ew.fraction === bestEwFraction) {
+                    this.backOdds = price;
+                    bookie.isBest = true;
+                }
+            }, this);
+            if (this.backOdds <= 0) {
+                this.backOdds = NaN;
+            }
+            this.place = this.place || {};
+            this.place.backOdds = bbUtils.getPlaceOdds(this.backOdds, {places: 0, fraction: bestEwFraction});
+            this.result = bbProcessors.eachWay(this, this.backStake, 5, {});
+            $scope.recalculateExtraPlaceEvent();
+        };
+        ExtraPlaceRunner.prototype.updateBackOdds = function(bookie) {
+            var myBookie = bbUtils.objByStr(this.bookies, 'name', bookie.name);
+            if (myBookie) {
+                if (bookie.ew) {
+                    myBookie.ew = bookie.ew;
+                }
+                var market = bbUtils.objByStr(bookie.markets, 'name', 'Win');
+                if (market) {
+                    var runner = bbUtils.objByStr(market.runners, 'name', this.name);
+                    if (runner) {
+                        myBookie.backOdds = runner.backOdds;
+                        this.recalculate();
+                    }
+                }
+            }
+        };
+        ExtraPlaceRunner.prototype.updateLayOdds = function(runner, marketName) {
+            if (/WIN/gi.test(marketName)) {
+                this.layOdds = bbUtils.normalizePrice(runner.price);
+                this.size = runner.size;
+            } else if (/PLACE/gi.test(marketName)) {
+                this.place = this.place || {};
+                this.place.layOdds = bbUtils.normalizePrice(runner.price);
+                this.place.size = runner.size;
+            }
+            this.recalculate();
+        };
+
+        $scope.createExtraPlaceRunner = function(name) {
+            return new ExtraPlaceRunner(name, this.knownBookies);
         };
 
         // Poll betfair data for events
@@ -267,33 +340,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             });
         }
 
-        function updateEwRunner(runner) {
-            var bestOdds = {
-                price: -10000,
-                ewFraction: 100,
-                bookies: []
-            };
-            runner.allBackOdds.forEach(function(bookieOdds) {
-                var price = bookieOdds.backOdds * 1.0;
-                if (price > bestOdds.price && bookieOdds.ew.fraction <= bestOdds.ewFraction) {
-                    bestOdds.price = price;
-                    bestOdds.ewFraction = bookieOdds.ew.fraction;
-                }
-            });
-            runner.allBackOdds.forEach(function(bookieOdds) {
-                var price = bookieOdds.backOdds * 1.0;
-                if (price === bestOdds.price && bookieOdds.ew.fraction === bestOdds.ewFraction) {
-                    bestOdds.bookies.push(bookieOdds.bookieName);
-                }
-            });
-            runner.bestOdds = bestOdds;
-        }
-
-        function recalculateEwRunner(runner) {
-
-        }
-
-        function calculateExtraPlaceEvent(event) {
+        function updateExtraPlaceBookies(event) {
             if ($scope.extraPlaceEvent) {
                 if (event.bookies) {
                     event.bookies.forEach(function (bookie) {
@@ -303,29 +350,12 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                 if (market.runners) {
                                     market.runners.forEach(function (runner) {
                                         // Find EW runner or create a new one
-                                        var ewRunner = bbUtils.objByStr($scope.extraPlaceEvent.runners, 'name', runner.name);
-                                        if (!ewRunner) {
-                                            ewRunner = {
-                                                backStake: 10,
-                                                layCommission: 5,
-                                                name: runner.name,
-                                                allBackOdds: []
-                                            };
-                                            $scope.extraPlaceEvent.runners.push(ewRunner);
+                                        var epRunner = bbUtils.objByStr($scope.extraPlaceEvent.runners, 'name', runner.name);
+                                        if (!epRunner) {
+                                            epRunner = $scope.createExtraPlaceRunner(runner.name);
+                                            $scope.extraPlaceEvent.runners.push(epRunner);
                                         }
-                                        // In EW runner find price for this bookie
-                                        var bookieOdds = bbUtils.objByStr(ewRunner.allBackOdds, 'bookie', bookie.name);
-                                        if (!bookieOdds) {
-                                            bookieOdds = {
-                                                bookieName: bookie.name,
-                                                bookieId: bookie.id,
-                                                ew: bookie.ew
-                                            };
-                                            ewRunner.allBackOdds.push(bookieOdds);
-                                        }
-                                        bookieOdds.backOdds = runner.backOdds;
-                                        updateEwRunner(ewRunner);
-                                        recalculateEwRunner(ewRunner);
+                                        epRunner.updateBackOdds(bookie);
                                     })
                                 }
                             })
@@ -334,6 +364,51 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 }
             }
         }
+
+        function updateExtraPlaceLay(data) {
+            if ($scope.extraPlaceEvent) {
+                if (data && data.markets) {
+                    data.markets.forEach(function (market) {
+                        if (market.runners) {
+                            market.runners.forEach(function (runner) {
+                                // Find EW runner or create a new one
+                                var epRunner = bbUtils.objByStr($scope.extraPlaceEvent.runners, 'name', runner.name);
+                                if (epRunner) {
+                                    epRunner.updateLayOdds(runner, market.name);
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+        }
+
+        $scope.recalculateExtraPlaceEvent = function() {
+            if ($scope.extraPlaceEvent) {
+                var totals = {
+                    any: false,
+                    profit: 0,
+                    liability: 0,
+                    win: {
+                        profit: 0,
+                        liability: 0
+                    },
+                    place: {
+                        profit: 0,
+                        liability: 0
+                    }
+                };
+                $scope.extraPlaceEvent.runners.forEach(function(runner) {
+                    if (runner.result && runner.result.profit) {
+                        totals.any = true;
+                        totals.profit += runner.result.profit;
+                        totals.win.profit += runner.result.win.profit;
+                        totals.place.profit += runner.result.place.profit;
+                    }
+                });
+                $scope.extraPlaceEvent.totals = totals;
+            }
+        };
 
         $scope.updateData = function(tabData) {
             //$log.debug('Update data...', tabData);
@@ -399,7 +474,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 bbStorage.set(event.id, event);
 
                 if ($scope.extraPlaceEvent && $scope.extraPlaceEvent.eventId === event.id) {
-                    calculateExtraPlaceEvent(event);
+                    updateExtraPlaceBookies(event);
                 }
             }
 
@@ -422,6 +497,9 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 event.bookies.forEach(function(bookie) {
                     $scope.updateBookiePrices(bookie, betfairData, dataTypes.betfair);
                 });
+                if ($scope.extraPlaceEvent && $scope.extraPlaceEvent.eventId === event.id) {
+                    updateExtraPlaceLay(betfairData);
+                }
             }
         };
 
@@ -468,7 +546,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     runners: [],
                     summary: {}
                 };
-                calculateExtraPlaceEvent(event);
+                updateExtraPlaceBookies(event);
             } else {
                 $scope.extraPlaceEvent = false;
             }

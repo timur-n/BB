@@ -85,7 +85,7 @@ angular.module('BBProcessors', [])
                 place: placeResult,
                 layOdds: winResult.layOdds + ' / ' + placeResult.layOdds,
                 layStake: winResult.layStake + ' / ' + placeResult.layStake,
-                liability: winResult.liability + ' / ' + placeResult.liability,
+                liability: winResult.liability * 1.0 + placeResult.liability * 1.0,
                 profit: winResult.profit + placeResult.profit
             };
             result.isProfit = result.profit >= 0;

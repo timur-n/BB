@@ -73,20 +73,68 @@
         <a ng-click="selectExtraPlaceEvent(false)">Close</a>
         <table class="runner-list">
             <tr>
-                <th>Name</th>
-                <th>Back odds</th>
-                <th>Lay odds</th>
-                <th>Bookies</th>
+                <th rowspan="2">Name</th>
+                <th rowspan="2" ng-repeat="knownBookie in knownBookies" class="bookie-header">
+                    <div class="bookie {{knownBookie.short}}"></div>
+                </th>
+                <th rowspan="2">Stake</th>
+                <th colspan="5">Win</th>
+                <th colspan="5">Place</th>
+                <th colspan="2">Total</th>
+            </tr>
+            <tr>
+                <th>Back</th>
+                <th>Lay</th>
+                <th>P/L</th>
+                <th>Lay stake</th>
+                <th>Liab.</th>
+                <th>Back</th>
+                <th>Lay</th>
+                <th>P/L</th>
+                <th>Lay stake</th>
+                <th>Liab.</th>
+                <th>P/L</th>
+                <th>Liab.</th>
             </tr>
             <tr ng-repeat="runner in extraPlaceEvent.runners track by $index">
                 <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
-                <td class="back-odds">{{runner.bestOdds.price}}</td>
-                <td class="lay-odds">{{runner.bestOdds.lay}}</td>
-                <td class=""><a class="extra-place-bookie" ng-repeat="bookie in runner.bestOdds.bookies" ng-click="selectExtraPlaceBookie(runner, bookie)">{{bookie}}</a></td>
+                <td ng-repeat="bookie in runner.bookies track by $index" ng-class="{subtle: !bookie.isBest}" class="price">
+                    <a ng-click="runner.toggle(bookie)">{{bookie.backOdds}}</a>
+                </td>
+                <td><input type="number" ng-model="runner.backStake" ng-show="!isNaN(runner.backOdds)" maxlength="4"></td>
+                <td class="back-odds"><input type="number" ng-model="runner.backOdds" maxlength="4"></td>
+                <td class="lay-odds">{{runner.layOdds}}</td>
+                <td>{{runner.result.win.profit | number:2}}</td>
+                <td>{{runner.result.win.layStake | number:2}}</td>
+                <td>{{runner.result.win.liability | number:2}}</td>
+                <td class="back-odds">{{runner.place.backOdds}}</td>
+                <td class="lay-odds">{{runner.place.layOdds}}</td>
+                <td>{{runner.result.place.profit | number:2}}</td>
+                <td>{{runner.result.place.layStake | number:2}}</td>
+                <td>{{runner.result.place.liability | number:2}}</td>
+                <td>{{runner.result.profit | number:2}}</td>
+                <td>{{runner.result.liability | number:2}}</td>
+            </tr>
+            <tr class="ew-terms">
+                <td>Each way terms</td>
+                <td ng-repeat="bookie in extraPlaceEvent.runners[0].bookies track by $index" class="ew-terms">
+                    <p class="ew-places">{{bookie.ew.places}}</p>
+                    <p class="ew-fraction">1/{{bookie.ew.fraction}}</p>
+                </td>
+                <td colspan="3"></td>
+                <td>{{extraPlaceEvent.totals.win.profit | number:2}}</td>
+                <td></td>
+                <td>{{extraPlaceEvent.totals.win.liability | number:2}}</td>
+                <td colspan="2"></td>
+                <td>{{extraPlaceEvent.totals.place.profit | number:2}}</td>
+                <td></td>
+                <td>{{extraPlaceEvent.totals.place.liability | number:2}}</td>
+                <td>{{extraPlaceEvent.totals.profit | number:2}}</td>
+                <td>{{extraPlaceEvent.totals.liability | number:2}}</td>
             </tr>
         </table>
     </div>
-    <div class="markets-container">
+    <div class="markets-container" ng-show="!extraPlaceEvent">
         <ul class="market-list" ng-show="selectedBookie && selectedBookie.markets.length > 1">
             <li ng-repeat="market in selectedBookie.markets track by $index">
                 <a ng-click="selectMarket(market)" ng-class="{selected: market.selected}">{{market.name}}</a>
