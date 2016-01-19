@@ -32,7 +32,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="event in events track by $index">
-                    <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectEvent(event)">{{event.name || event.url}}</a></td>
+                    <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectExtraPlaceEvent(event)">{{event.name || event.url}}</a></td>
                     <td ng-repeat="bookie in event.bookies" ng-class="{selected: bookie.selected, green: bookie.summary.isProfit, yellow: bookie.summary.isOk, direct: bookie.isDirect}">
                         <a class="summary"
                            ng-click="selectBookie(event, bookie)">
@@ -68,6 +68,23 @@
             <label for="marked">Star</label>
             <input id="marked" type="checkbox" ng-model="selectedBookie.marked">
         </div>
+    </div>
+    <div class="extra-place-runners" ng-show="extraPlaceEvent">
+        <a ng-click="selectExtraPlaceEvent(false)">Close</a>
+        <table class="runner-list">
+            <tr>
+                <th>Name</th>
+                <th>Back odds</th>
+                <th>Lay odds</th>
+                <th>Bookies</th>
+            </tr>
+            <tr ng-repeat="runner in extraPlaceEvent.runners track by $index">
+                <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
+                <td class="back-odds">{{runner.bestOdds.price}}</td>
+                <td class="lay-odds">{{runner.bestOdds.lay}}</td>
+                <td class=""><a class="extra-place-bookie" ng-repeat="bookie in runner.bestOdds.bookies" ng-click="selectExtraPlaceBookie(runner, bookie)">{{bookie}}</a></td>
+            </tr>
+        </table>
     </div>
     <div class="markets-container">
         <ul class="market-list" ng-show="selectedBookie && selectedBookie.markets.length > 1">

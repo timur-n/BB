@@ -311,5 +311,50 @@ describe('Main app', function() {
             expect($scope.events.length).toBe(1);
             expect($scope.events[0].time).toBe('12:00');
         });
+
+        it('should allow selecting ExtraPlace event', function() {
+            expect($scope.extraPlaceEvent).toBe(false);
+            $scope.updateData({
+                id: 100,
+                data: simpleData()
+            });
+            var event = $scope.events[0];
+            $scope.selectExtraPlaceEvent(event);
+            expect($scope.extraPlaceEvent).toBeTruthy();
+            expect($scope.extraPlaceEvent.eventId).toBeTruthy();
+            expect($scope.extraPlaceEvent.eventId).toBe(event.id);
+            var runner = $scope.extraPlaceEvent.runners[0];
+            expect(runner).toBeDefined();
+            expect(runner.name).toBe('runner 1');
+            expect(runner.backStake).toBe(10);
+            expect(runner.allBackOdds).toBeDefined();
+            expect(runner.allBackOdds.length).toBe(1);
+            expect(runner.bestOdds.price).toBe(10);
+            expect(runner.bestOdds.ewFraction).toBe(5);
+            expect(runner.bestOdds.bookies.length).toBe(1);
+            expect(runner.bestOdds.bookies[0]).toBe('Sky Bet');
+            var bookieOdds = runner.allBackOdds[0];
+            expect(bookieOdds.bookieName).toBe('Sky Bet');
+            expect(bookieOdds.backOdds).toBe('10.00');
+        });
+
+        it('should update ExtraPlace price for same bookie', function() {
+            var tabData = {
+                id: 100,
+                data: simpleData()
+            };
+            $scope.updateData(tabData);
+            var event = $scope.events[0];
+            $scope.selectExtraPlaceEvent(event);
+
+            tabData = {
+                id: 100,
+                data: simpleData()
+            };
+            tabData.data.bookies[0].markets[0].runners[0].price = '11/1';
+            $scope.updateData(tabData);
+
+            //expect($scope.extraPlaceEvent.runners[0].price).toBe(12.0);
+        });
     });
 });
