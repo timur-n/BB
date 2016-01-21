@@ -96,18 +96,23 @@
                 <th>P/L</th>
                 <th>Liab.</th>
             </tr>
-            <tr ng-repeat="runner in extraPlaceEvent.runners track by $index">
-                <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
-                <td ng-repeat="bookie in runner.bookies track by $index" ng-class="{subtle: !bookie.isBest}" class="price">
+            <tr ng-repeat="runner in extraPlaceEvent.runners track by $index" ng-class="{subtle: runner.isBacked}">
+                <td class="event-name" ng-class="{selected: runner.selected}">
+                    <a ng-click="selectRunner(runner)">{{runner.name}}</a>
+                </td>
+                <td ng-repeat="bookie in runner.bookies track by $index" ng-class="{subtle: !bookie.isBest, selected: bookie.isSelected}" class="price">
                     <a ng-click="runner.toggle(bookie)">{{bookie.backOdds}}</a>
                 </td>
                 <td><input type="number" ng-model="runner.backStake" ng-show="!isNaN(runner.backOdds)" maxlength="4"></td>
-                <td class="back-odds"><input type="number" ng-model="runner.backOdds" maxlength="4"></td>
+                <td class="back-odds" ng-class="{locked: runner.isLocked('winBack')}">
+                    <input type="number" ng-model="runner.backOdds" maxlength="4">
+                    <a ng-click="runner.toggleLock('winBack')"><i class="fa fa-lock"></i></a>
+                </td>
                 <td class="lay-odds">{{runner.layOdds}}</td>
                 <td>{{runner.result.win.profit | number:2}}</td>
                 <td>{{runner.result.win.layStake | number:2}}</td>
                 <td>{{runner.result.win.liability | number:2}}</td>
-                <td class="back-odds">{{runner.place.backOdds}}</td>
+                <td class="back-odds" ng-class="{locked: runner.isLocked('winBack')}">{{runner.place.backOdds}}</td>
                 <td class="lay-odds">{{runner.place.layOdds}}</td>
                 <td>{{runner.result.place.profit | number:2}}</td>
                 <td>{{runner.result.place.layStake | number:2}}</td>
@@ -129,7 +134,7 @@
                 <td>{{extraPlaceEvent.totals.place.profit | number:2}}</td>
                 <td></td>
                 <td>{{extraPlaceEvent.totals.place.liability | number:2}}</td>
-                <td>{{extraPlaceEvent.totals.profit | number:2}}</td>
+                <td ng-class="{green: extraPlaceEvent.totals.isProfit, yellow: extraPlaceEvent.totals.isOk}">{{extraPlaceEvent.totals.profit | number:2}}</td>
                 <td>{{extraPlaceEvent.totals.liability | number:2}}</td>
             </tr>
         </table>

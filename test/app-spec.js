@@ -446,6 +446,20 @@ describe('Main app', function() {
                 expect(runner.name).toBe('runner 1');
                 expect(runner.backStake).toBe(10);
             });
+
+            describe('Runner', function() {
+                it('should toggle bookie isSelected flag', function() {
+                    var runner = $scope.createExtraPlaceRunner('test');
+                    expect(runner.bookies.length).toBeGreaterThan(3);
+                    expect(runner.isLocked('winBack')).toBeFalsy();
+                    runner.toggle(runner.bookies[0]);
+                    expect(runner.bookies[0].isSelected).toBeTruthy();
+                    expect(runner.isLocked('winBack')).toBeTruthy();
+                    runner.toggle(runner.bookies[0]);
+                    expect(runner.bookies[0].isSelected).toBeFalsy();
+                    expect(runner.isLocked('winBack')).toBeTruthy();
+                });
+            });
         });
     });
 });

@@ -130,25 +130,27 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             });
         }
         ExtraPlaceRunner.prototype.recalculate = function() {
-            this.backOdds = 0;
+            var bestBackOdds = 0;
             var bestEwFraction = 100;
             this.bookies.forEach(function(bookie) {
                 bookie.isBest = false;
                 var price = bookie.backOdds * 1.0;
-                if (price > this.backOdds && bookie.ew.fraction <= bestEwFraction) {
-                    this.backOdds = price;
+                if (price > bestBackOdds && bookie.ew.fraction <= bestEwFraction) {
+                    bestBackOdds = price;
                     bestEwFraction = bookie.ew.fraction;
                 }
             }, this);
             this.bookies.forEach(function(bookie) {
                 var price = bookie.backOdds * 1.0;
-                if (price === this.backOdds && bookie.ew.fraction === bestEwFraction) {
-                    this.backOdds = price;
+                if (price === bestBackOdds && bookie.ew.fraction === bestEwFraction) {
                     bookie.isBest = true;
                 }
             }, this);
-            if (this.backOdds <= 0) {
-                this.backOdds = NaN;
+            if (bestBackOdds <= 0) {
+                bestBackOdds = NaN;
+            }
+            if (!this.isLocked('winBack')) {
+                this.backOdds = bestBackOdds;
             }
             this.place = this.place || {};
             this.place.backOdds = bbUtils.getPlaceOdds(this.backOdds, {places: 0, fraction: bestEwFraction});
@@ -181,6 +183,32 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 this.place.size = runner.size;
             }
             this.recalculate();
+        };
+        ExtraPlaceRunner.prototype.toggleLock = function(name) {
+            this.locks = this.locks || {};
+            this.locks[name] = !this.locks[name];
+        };
+        ExtraPlaceRunner.prototype.isLocked = function(name) {
+            return this.locks && this.locks[name];
+        };
+        ExtraPlaceRunner.prototype.toggle = function(bookie) {
+            var selectedBookie;
+            this.bookies.forEach(function(b) {
+                if (b.isSelected) {
+                    selectedBookie = b;
+                }
+                b.isSelected = false;
+            });
+            if (selectedBookie !== bookie) {
+                if (selectedBookie) {
+                    selectedBookie.isSelected = false;
+                }
+                bookie.isSelected = true;
+            }
+            if (bookie.isSelected && !this.isLocked('winBack')) {
+                this.toggleLock('winBack')
+            }
+            this.isBacked = bookie.isSelected;
         };
 
         $scope.createExtraPlaceRunner = function(name) {
@@ -383,6 +411,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
         }
 
+        // todo-timur: coloring for P/L; lay sizes; tools for locking prices, bookies and exchanges; more styles for lay stakes etc.
         $scope.recalculateExtraPlaceEvent = function() {
             if ($scope.extraPlaceEvent) {
                 var totals = {

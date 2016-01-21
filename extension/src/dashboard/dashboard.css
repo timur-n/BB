@@ -73,6 +73,9 @@ a[ng-click] {
 .back-odds {
     background-color: #c9edf7;
 }
+.back-odds.locked {
+    background-color: #ebebeb;
+}
 .lay-odds {
     background-color: #f4cccc;
 }
