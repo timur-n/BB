@@ -411,13 +411,14 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
         }
 
-        // todo-timur: coloring for P/L; lay sizes; tools for locking prices, bookies and exchanges; more styles for lay stakes etc.
+        // todo-timur: tools for locking prices, bookies and exchanges; more styles for lay stakes etc.
         $scope.recalculateExtraPlaceEvent = function() {
             if ($scope.extraPlaceEvent) {
                 var totals = {
                     any: false,
                     profit: 0,
                     liability: 0,
+                    backStake: 10, // todo-timur: get average for isOk calculation?
                     win: {
                         profit: 0,
                         liability: 0
@@ -431,10 +432,13 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     if (runner.result && runner.result.profit) {
                         totals.any = true;
                         totals.profit += runner.result.profit;
+                        totals.liability = Math.max(totals.liability, runner.result.liability);
                         totals.win.profit += runner.result.win.profit;
                         totals.place.profit += runner.result.place.profit;
                     }
                 });
+                totals.isProfit = totals.profit >= 0;
+                totals.isOk = !totals.isProfit && (Math.abs(totals.profit) / totals.backStake < 0.1);
                 $scope.extraPlaceEvent.totals = totals;
             }
         };

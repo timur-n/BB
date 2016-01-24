@@ -55,8 +55,7 @@ a[ng-click] {
 .bookie-options, .runner-options {
     padding: 5px;
 }
-.bookie-options input[type=number],
-.extra-place-runners input[type=number] {
+.bookie-options input[type=number] {
     width: 50px;
 }
 .bookie-processors {
@@ -73,13 +72,14 @@ a[ng-click] {
 .back-odds {
     background-color: #c9edf7;
 }
-.back-odds.locked {
-    background-color: #ebebeb;
-}
 .lay-odds {
     background-color: #f4cccc;
 }
-sub, span.place, .back-odds .fa {
+.back-odds.locked,
+.lay-odds.locked {
+    background-color: #ebebeb;
+}
+sub, span.place {
     margin-left: 5px;
     color: gray;
 }
@@ -122,7 +122,7 @@ th {
     text-decoration: line-through;
     color: #c0c0c0;
 }
-label {
+label, table .fa {
     font-weight: normal;
     color: #737373;
 }
@@ -212,6 +212,9 @@ input[type=text], input[type=number] {
 .main-toolbar {
     margin-bottom: 5px;
 }
+.extra-place-runners input[type=number] {
+    width: 40px;
+}
 tr.ew-terms {
     background-color: #cdcdcd;
 }
@@ -223,9 +226,33 @@ tr.ew-terms {
 .extra-place-runners td.price {
     text-align: center;
 }
+.extra-place-runners .lay-odds span {
+    min-width: 30px;
+    display: inline-block;
+}
+.extra-place-runners .liability {
+    font-size: smaller;
+}
+.extra-place-runners .subtle .green {
+    background-color: inherit;
+}
+
 .ew-terms p {
     margin: 0;
     padding: 0;
     line-height: 14px;
     font-size: 12px;
+}
+.back-odds-readonly {
+    min-width: 30px;
+    display: inline-block;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.profit {
+    font-weight: bold;
+    color: black;
 }

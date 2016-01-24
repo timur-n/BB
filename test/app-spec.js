@@ -447,6 +447,48 @@ describe('Main app', function() {
                 expect(runner.backStake).toBe(10);
             });
 
+            it('should calculate totals', function() {
+                $scope.extraPlaceEvent = {
+                    runners: [
+                        {
+                            name: 'runner 1',
+                            result: {
+                                profit: 1,
+                                liability: 1000,
+                                win: {
+                                    profit: 10,
+                                    liability: 100
+                                },
+                                place: {
+                                    profit: -9,
+                                    liability: 120
+                                }
+                            }
+                        },
+                        {
+                            name: 'runner 2',
+                            result: {
+                                profit: 2,
+                                liability: 2000,
+                                win: {
+                                    profit: 20,
+                                    liability: 200
+                                },
+                                place: {
+                                    profit: -18,
+                                    liability: 220
+                                }
+                            }
+                        }
+                    ]
+                };
+                $scope.recalculateExtraPlaceEvent();
+                expect($scope.extraPlaceEvent.totals.profit).toBe(3); // Sum(profits)
+                expect($scope.extraPlaceEvent.totals.liability).toBe(2000); // Max(liabilities)
+                expect($scope.extraPlaceEvent.totals.isProfit).toBe(true);
+                expect($scope.extraPlaceEvent.totals.isOk).toBe(false);
+            });
+
             describe('Runner', function() {
                 it('should toggle bookie isSelected flag', function() {
                     var runner = $scope.createExtraPlaceRunner('test');
