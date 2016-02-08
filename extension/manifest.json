@@ -25,6 +25,7 @@
       "matches": [
         "*://smarkets.com/*",
         "*://www.skybet.com/*",
+        "*://sports.williamhill.com/bet/*",
         "*://www.oddschecker.com/*"
       ],
       "js": ["src/inject/inject.js", "src/inject/jquery-2.1.1.min.js"]
@@ -44,6 +45,10 @@
     {
       "matches": ["*://www.skybet.com/football/*"],
       "js": ["src/inject/skybet/football.js"]
+    },
+    {
+      "matches": ["*://sports.williamhill.com/bet/*"],
+      "js": ["src/inject/willhill/willhill.js"]
     },
     {
       "matches": ["*://www.oddschecker.com/football/*"],

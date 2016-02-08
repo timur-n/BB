@@ -1,4 +1,9 @@
 describe('Scrapers', function() {
+
+    afterEach(function() {
+        $('body').empty();
+    });
+
     describe('Smarkets', function() {
         it('should scrape horse page', function() {
         });
@@ -50,5 +55,41 @@ describe('Scrapers', function() {
             expect(runner.name).toBe('Exitas');
             expect(runner.price).toBe('15');
         });
-    })
+    });
+
+    describe('Willhill', function() {
+        it('should scrape page', function() {
+            var html = '<div id="primaryCollectionContainer">' +
+                    '<div id="ip_market_1"><span id="ip_market_name_1">Match Betting</span></div>' +
+                '</div>';
+            $('body').append($(html));
+
+            var result = window.bb_getWillhill({});
+            expect(result.event).toBeDefined();
+            expect(result.event.name).toBe('Test event');
+            expect(result.event.time).toBe('20:00');
+            expect(result.bookies).toBeDefined();
+            expect(result.bookies.length).toBe(1);
+            var bookie = result.bookies[0];
+            expect(bookie.name).toBe('William Hill');
+            expect(bookie.markets).toBeDefined();
+            expect(bookie.markets.length).toBe(1);
+            var market = bookie.markets[0];
+            expect(market.name).toBe('Match Odds');
+            expect(market.runners).toBeDefined();
+            expect(market.runners.length).toBe(4);
+            var runner = market.runners[0];
+            expect(runner.name).toBe('Stephanie Frances');
+            expect(runner.price).toBe('1.8');
+            runner = market.runners[1];
+            expect(runner.name).toBe('Red Spinner');
+            expect(runner.price).toBe('3.75');
+            runner = market.runners[2];
+            expect(runner.name).toBe('Pine Creek');
+            expect(runner.price).toBe('5');
+            runner = market.runners[3];
+            expect(runner.name).toBe('Exitas');
+            expect(runner.price).toBe('15');
+        });
+    });
 });

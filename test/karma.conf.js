@@ -13,6 +13,7 @@ module.exports = function(config) {
             'extension/src/dashboard/betfair-api.js',
             'test/angular-mocks.js',
             'extension/src/inject/oddschecker/horse.js',
+            'extension/src/inject/willhill/willhill.js',
             'extension/src/inject/jquery-2.1.1.min.js',
 
             'test/app-spec.js',
