@@ -55,7 +55,7 @@
       "js": ["src/inject/oddschecker/football.js"]
     },
     {
-      "matches": ["*://www.oddschecker.com/horse-racing/*"],
+      "matches": ["*://www.oddschecker.com/horse-racing/*", "*://www.oddschecker.com/golf/*"],
       "js": ["src/inject/oddschecker/horse.js"]
     }
   ],

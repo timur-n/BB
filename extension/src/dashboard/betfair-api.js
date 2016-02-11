@@ -3,6 +3,7 @@
 var BetfairAppID = 'Zn8PUTbCvmwDw1RX',
     eventTypes = {
         football: '1',
+        golf: '3',
         horseRaces: '7'
     },
     knownHorseMarketNames = ['Each Way', 'To Be Placed'],
@@ -270,18 +271,27 @@ function createBetfair() {
     }
 
     function renameMarket(market) {
-        if (market.eventType && market.eventType.id === eventTypes.horseRaces) {
-            if (market.marketName === 'To Be Placed') {
-                return 'Place';
-            } else if (/[1-9] TBP/gi.test(market.marketName)) {
-                return 'Place';
-            } else if (market.marketName === 'Each Way') {
-                return market.marketName;
-            } else {
-                return 'Win';
+        var name = market.marketName;
+        if (market.eventType) {
+            if (market.eventType.id === eventTypes.horseRaces) {
+                if (market.marketName === 'To Be Placed') {
+                    name = 'Place';
+                } else if (/[1-9] TBP/gi.test(market.marketName)) {
+                    name = 'Place';
+                } else if (market.marketName === 'Each Way') {
+                    name = market.marketName;
+                } else {
+                    name = 'Win';
+                }
+            } else if (market.eventType.id === eventTypes.golf) {
+                if (/Top [1-9] Finish/gi.test(market.marketName)) {
+                    name = 'Place';
+                } else {
+                    name = 'Win';
+                }
             }
         }
-        return market.marketName;
+        return name;
     }
 
     betfair.getPrices = function(params, done) {
