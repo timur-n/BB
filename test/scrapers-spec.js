@@ -9,6 +9,20 @@ describe('Scrapers', function() {
         });
     });
 
+    describe('Inject', function() {
+        describe('lib', function() {
+            it('should create lib', function() {
+                expect(window.bb).toBeDefined();
+            });
+
+            it('should normalize Correct Score values', function() {
+                expect(window.bb.normalizeCorrectScore('QPR 2-0', 'QPR', 'Fullham')).toBe('2 - 0');
+                expect(window.bb.normalizeCorrectScore('Fullham 2-0', 'QPR', 'Fullham')).toBe('0 - 2');
+                expect(window.bb.normalizeCorrectScore('Draw 1-1', 'QPR', 'Fullham')).toBe('1 - 1');
+            });
+        });
+    });
+
     describe('Oddschecker', function() {
         it('should scrape page', function() {
             var html =
@@ -59,12 +73,13 @@ describe('Scrapers', function() {
 
     describe('Willhill', function() {
         it('should scrape page', function() {
+            // todo-timur: add runners html and tests
             var html = '<div id="primaryCollectionContainer">' +
                     '<div id="ip_market_1"><span id="ip_market_name_1">Match Betting</span></div>' +
                 '</div>';
             $('body').append($(html));
 
-            var result = window.bb_getWillhill({});
+            var result = window.bb_getWillhill();
             expect(result.event).toBeDefined();
             expect(result.event.name).toBe('Test event');
             expect(result.event.time).toBe('20:00');

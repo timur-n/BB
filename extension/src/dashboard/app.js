@@ -107,6 +107,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             {name: 'Paddy Power', short: 'Paddy'},
             {name: 'Bet Victor', short: 'BVic'},
             {name: 'Coral', short: 'Coral'},
+            //{name: 'Boylesports', short: 'Boyle'},
             {name: 'William Hill', short: 'WH'}
         ];
 
@@ -175,11 +176,15 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         };
         ExtraPlaceRunner.prototype.updateLayOdds = function(runner, marketName) {
             if (/WIN/gi.test(marketName)) {
-                this.layOdds = bbUtils.normalizePrice(runner.price);
+                if (!this.isLocked('winLay')) {
+                    this.layOdds = bbUtils.normalizePrice(runner.price);
+                }
                 this.size = runner.size;
             } else if (/PLACE/gi.test(marketName)) {
                 this.place = this.place || {};
-                this.place.layOdds = bbUtils.normalizePrice(runner.price);
+                if (!this.isLocked('placeLay')) {
+                    this.place.layOdds = bbUtils.normalizePrice(runner.price);
+                }
                 this.place.size = runner.size;
             }
             this.recalculate();
@@ -390,6 +395,10 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         }
                     });
                 }
+
+                if ($scope.extraPlaceEvent.loaded) {
+                    bbStorage.set('EP-' + $scope.extraPlaceEvent.eventId, $scope.extraPlaceEvent);
+                }
             }
         }
 
@@ -577,8 +586,28 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 $scope.extraPlaceEvent = {
                     eventId: event.id,
                     runners: [],
-                    summary: {}
+                    summary: {},
+                    loaded: false
                 };
+                bbStorage.get('EP-' + event.id, function (value) {
+                    if ($scope.extraPlaceEvent) {
+                        if (value && value.runners) {
+                            value.runners.forEach(function (savedRunner) {
+                                var runner = bbUtils.objByStr($scope.extraPlaceEvent.runners, 'name', savedRunner.name);
+                                if (runner) {
+                                    runner.backStake = savedRunner.backStake;
+                                    runner.locks = savedRunner.locks;
+                                    runner.backOdds = savedRunner.backOdds;
+                                    runner.layOdds = savedRunner.layOdds;
+                                    if (runner.place && savedRunner.place) {
+                                        runner.place.layOdds = savedRunner.place.layOdds;
+                                    }
+                                }
+                            });
+                        }
+                        $scope.extraPlaceEvent.loaded = true;
+                    }
+                });
                 updateExtraPlaceBookies(event);
             } else {
                 $scope.extraPlaceEvent = false;

@@ -178,6 +178,9 @@ input[type=text], input[type=number] {
 .bookie.WH {
     background-position: 0 0;
 }
+.bookie.Boyle {
+    background-position: -221px 0;
+}
 .bookie.Lads {
     background-position: -153px 0;
 }
@@ -233,7 +236,8 @@ tr.ew-terms {
 .extra-place-runners .liability {
     font-size: smaller;
 }
-.extra-place-runners .subtle .green {
+.extra-place-runners .subtle .green,
+.extra-place-runners .subtle .yellow {
     background-color: inherit;
 }
 

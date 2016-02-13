@@ -121,9 +121,11 @@
                 <td class="liability">{{runner.result.win.liability | number:2}}</td>
                 <td>{{runner.result.win.profit | number:2}}</td>
                 <td class="back-odds" ng-class="{locked: runner.isLocked('winBack')}">{{runner.place.backOdds}}</td>
-                <td class="lay-odds">
-                    <span>{{runner.place.layOdds}}</span>
+                <td class="lay-odds" ng-class="{locked: runner.isLocked('placeLay')}">
+                    <input type="number" ng-model="runner.place.layOdds" maxlength="4" ng-show="runner.isLocked('placeLay')">
+                    <span class="lay-odds-readonly" ng-show="!runner.isLocked('placeLay')">{{runner.place.layOdds}}</span>
                     <sub class="lay-size">{{runner.place.size | number:0}}</sub>
+                    <a ng-click="runner.toggleLock('placeLay')"><i class="fa fa-lock"></i></a>
                 </td>
                 <td>{{runner.result.place.layStake | number:2}}</td>
                 <td class="liability">{{runner.result.place.liability | number:2}}</td>
@@ -153,17 +155,10 @@
         </table>
     </div>
     <div class="markets-container" ng-show="!extraPlaceEvent">
-<!--
-        <ul class="market-list" ng-show="selectedBookie && selectedBookie.markets.length > 1">
-            <li ng-repeat="market in selectedBookie.markets track by $index">
-                <a ng-click="selectMarket(market)" ng-class="{selected: market.selected}">{{market.name}}</a>
-            </li>
-        </ul>
--->
         <table class="runner-list">
             <tr>
                 <th>Name</th>
-                <th>Market</th>
+                <th ng-if="selectedBookie && selectedBookie.markets.length > 1">Market</th>
                 <th>Back odds</th>
                 <th>Lay odds</th>
                 <th ng-repeat="processor in selectedBookie.processors track by $index" ng-show="processor.enabled">
@@ -173,7 +168,7 @@
             <tbody ng-repeat="market in selectedBookie.markets track by $index">
                 <tr ng-repeat="runner in market.runners track by $index">
                     <td class="event-name" ng-class="{selected: runner.selected}"><a ng-click="selectRunner(runner)">{{runner.name}}</a></td>
-                    <td>{{market.name}}</td>
+                    <td ng-if="selectedBookie && selectedBookie.markets.length > 1">{{market.name}}</td>
                     <td class="back-odds">
                         {{runner.backOdds}}
                         <a ng-show="runner.locked" title="Locked, click to unlock" ng-click="lockRunnerPrice(runner, false)"><i class="fa fa-lock"></i></a>

@@ -19,7 +19,13 @@ window.bb_getOddschekerHorse = function(result) {
 
     result.event = result.event || {};
     result.event.name = $('.nav-popout.selected').clone().children().remove().end().text();
+    if (!result.event.name) {
+        result.event.name = $('.page-description h1').text().trim();
+    }
     result.event.time = $('.event li.selected a').text();
+    if (!result.event.time) {
+        result.event.time = '00:00';
+    }
     result.source = "oddschecker";
 
     $bookies.each(function() {
