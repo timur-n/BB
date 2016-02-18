@@ -28,7 +28,11 @@
         "*://sports.williamhill.com/bet/*",
         "*://www.oddschecker.com/*"
       ],
-      "js": ["src/inject/inject.js", "src/inject/jquery-2.1.1.min.js"]
+      "js": [
+        "src/inject/inject.js",
+        "src/inject/inject-lib.js",
+        "src/inject/jquery-2.1.1.min.js"
+      ]
     },
     {
       "matches": ["https://smarkets.com/*/horse-racing/*"],
