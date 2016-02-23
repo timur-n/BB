@@ -22,6 +22,9 @@ describe('Scrapers', function() {
                 expect(window.bb.normalizeCorrectScore('QPR 5-1', 'QPR', 'Fullham')).toBe('');
                 expect(window.bb.normalizeCorrectScore('Fullham 1-5', 'QPR', 'Fullham')).toBe('');
                 expect(window.bb.normalizeCorrectScore('Draw 5-5', 'QPR', 'Fullham')).toBe('');
+
+                var name = 'Manchester Utd 2-1'.replace(/Manchester Utd/gi, 'Man Utd');
+                expect(window.bb.normalizeCorrectScore(name, 'home', 'Man Utd')).toBe('1 - 2');
             });
         });
     });
@@ -110,6 +113,70 @@ describe('Scrapers', function() {
             expect(runner.name).toBe('Exitas');
             expect(runner.price).toBe('15');
 */
+        });
+    });
+
+    describe('Bet Victor', function() {
+        it('should scrape football page', function() {
+            var html = '<div id="center_content">' +
+                '<div class="coupon_header scrollable">' +
+                    '<div class="coupon_header_titles">' +
+                        '<h4><span class="localized-time"><em>Saturday</em>12:45</span></h4>' +
+                        '<h1>West Ham v Sunderland</h1>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="single_markets">' +
+                    '<h4><span class="coupon-title single">ENG Premier League - Match Betting - 90 Mins</span><span>Junk1</span></h4>' +
+                    '<table class="full_list">' +
+                        '<tr class="body">' +
+                            '<td class="outcome_td"><span class="out_come bet" data-outcome_description="Runner11"><a><span class="outcome_description">Runner11</span><span class="price">19/10</span></a></span></td>' +
+                            '<td class="outcome_td"><span class="out_come bet" data-outcome_description="Runner12"><a><span class="outcome_description">Runner12</span><span class="price">5/4</span></a></span></td>' +
+                        '</tr>' +
+                    '</table>' +
+                '</div>' +
+                '<div class="single_markets">' +
+                    '<h4><span class="coupon-title single">Correct Score - 90 Mins</span><span>Junk2</span></h4>' +
+                    '<table class="full_list">' +
+                        '<tr class="body">' +
+                            '<td class="outcome_td"><span class="out_come bet" data-outcome_description="West Ham 1 - 0"><a><span class="outcome_description">Runner21</span><span class="price">11/1</span></a></span></td>' +
+                            '<td class="outcome_td"><span class="out_come bet" data-outcome_description="Draw 0 - 0"><a><span class="outcome_description">Runner22</span><span class="price">15/1</span></a></span></td>' +
+                            '<td class="outcome_td"><span class="out_come bet" data-outcome_description="Sunderland 1 - 0"><a><span class="outcome_description">Runner23</span><span class="price">10/4</span></a></span></td>' +
+                        '</tr>' +
+                    '</table>' +
+                '</div>' +
+            '</div>';
+            $('body').append($(html));
+
+            var result = window.bb_getBetvictorFootball();
+            expect(result.event).toBeDefined();
+            expect(result.event.name).toBe('West Ham v Sunderland');
+            expect(result.event.time).toBe('12:45');
+
+            expect(result.bookies.length).toBe(1);
+            var bookie = result.bookies[0];
+            expect(bookie.markets.length).toBe(2);
+            var mkt = bookie.markets[0];
+            expect(mkt.name).toBe('Match Odds');
+            expect(mkt.runners.length).toBe(2);
+            var runner = mkt.runners[0];
+            expect(runner.name).toBe('Runner11');
+            expect(runner.price).toBe('19/10');
+            runner = mkt.runners[1];
+            expect(runner.name).toBe('Runner12');
+            expect(runner.price).toBe('5/4');
+
+            mkt = bookie.markets[1];
+            expect(mkt.name).toBe('Correct Score');
+            expect(mkt.runners.length).toBe(3);
+            runner = mkt.runners[0];
+            expect(runner.name).toBe('1 - 0');
+            expect(runner.price).toBe('11/1');
+            runner = mkt.runners[1];
+            expect(runner.name).toBe('0 - 0');
+            expect(runner.price).toBe('15/1');
+            runner = mkt.runners[2];
+            expect(runner.name).toBe('0 - 1');
+            expect(runner.price).toBe('10/4');
         });
     });
 });

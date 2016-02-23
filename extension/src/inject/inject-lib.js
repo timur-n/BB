@@ -23,5 +23,14 @@ window.bb = {
 
     normalizeHtFt: function(text) {
         return text.replace(' / ', '/');
+    },
+
+    // JQuery helpers
+    getTextNoChildren: function($item) {
+        return this.getText($item.clone().children().remove().end());
+    },
+    getText: function ($item) {
+        return $item.text().trim().replace(/\s*\n\s*/g, ' ');
     }
+
 };
