@@ -30,18 +30,20 @@ window.bb_getBetvictorFootball = function() {
             .replace(/([A-z ]*) - ([A-z ]*) - (90 Mins)/gi, '$2')
             .replace(/([A-z ]*) - (90 Mins)/gi, '$1')
             .replace(/Match Betting/gi, 'Match Odds')
-            .replace(/Half Time \/ Full Time/gi, 'Half Time/Full Time');
+            .replace(/Half Time \/ Full Time/gi, 'HT / FT');
     }
 
     function renameRunner(marketName, name, home, away) {
         var newName = name
             .replace(/Manchester City/gi, 'Man City')
             .replace(/Manchester Utd/gi, 'Man Utd')
+            .replace(/Hull City/gi, 'Hull')
+            .replace(/Sheffield Wednesday/gi, 'Sheff Wed')
             .replace(/Manchester United/gi, 'Man Utd');
         if (/Correct Score/gi.test(marketName)) {
             newName = bb.normalizeCorrectScore(newName, home, away);
         }
-        if (/Half Time\/Full Time/gi.test(marketName)) {
+        if (/HT \/ FT/gi.test(marketName)) {
             newName = newName.replace(/ - /gi, '/');
         }
         return newName;
@@ -52,12 +54,13 @@ window.bb_getBetvictorFootball = function() {
         return knownMarkets.indexOf(name) >= 0;
     }
 
-    var nameRexExp = /([A-z ]*)(.v.)([A-z ]*)/gi;
-    home = result.event.name.replace(nameRexExp, '$1');
-    away = result.event.name.replace(nameRexExp, '$3');
+    var nameRexExp = /([A-z ]*)( v )([A-z ]*)/gi;
+    home = renameRunner('', result.event.name.replace(nameRexExp, '$1'));
+    away = renameRunner('', result.event.name.replace(nameRexExp, '$3'));
+    result.event.name = home + ' v ' + away;
     result.debug = {
-        home: renameRunner('', home),
-        away: renameRunner('', away)
+        home: home,
+        away: away
     };
     if (!$panels.length) {
         $panels = $();

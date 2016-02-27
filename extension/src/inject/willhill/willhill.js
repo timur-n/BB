@@ -16,11 +16,12 @@ window.bb_getWillhill = function() {
     function renameMarket(name) {
         return name
             .replace(/Match Betting Live/gi, 'Match Odds')
-            .replace(/Match Betting/gi, 'Match Odds');
+            .replace(/Match Betting/gi, 'Match Odds')
+            .replace(/Half time\/Full time/gi, 'HT / FT');
     }
 
     function isKnownMarket(name) {
-        var knownMarkets = ['Match Odds', 'Correct Score', 'Half-Time/Full-Time', 'Under/Over 2.5 Goals'];
+        var knownMarkets = ['Match Odds', 'Correct Score', 'HT / FT', 'Under/Over 2.5 Goals'];
         return knownMarkets.indexOf(name) >= 0;
     }
 

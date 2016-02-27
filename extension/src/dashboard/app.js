@@ -38,8 +38,15 @@ angular.module('BBUtils', [])
             for (var i = 0; i < array.length; i += 1) {
                 var val = array[i][key],
                     all = val && value;
-                if (all && val.toString().toLowerCase() === value.toString().toLowerCase()) {
-                    return i;
+                if (all) {
+                    var str1 = val.toString().toLowerCase(),
+                        str2 = value.toString().toLowerCase(),
+                        stringsMatch = str1 === str2
+                        || str1.indexOf(str2) >= 0
+                        || str2.indexOf(str1) >= 0;
+                    if (stringsMatch) {
+                        return i;
+                    }
                 }
             }
             return -1;
@@ -47,13 +54,13 @@ angular.module('BBUtils', [])
 
         function normalizePrice(price) {
             var parts = ('' + price).split('/');
-            var price, digits;
+            var newPrice;
             if (parts.length === 2) {
-                price = (((+parts[0]) + (+parts[1])) / parts[1]);
+                newPrice = (((+parts[0]) + (+parts[1])) / parts[1]);
             } else {
-                price = (1.0 * price);
+                newPrice = (1.0 * price);
             }
-            return Math.round(price * 100) / 100;
+            return Math.round(newPrice * 100) / 100;
         }
 
         return {
@@ -96,7 +103,6 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.events = [];
         $scope.betfair = createBetfair();
         $scope.betfairPollInterval = 5000;
-        $scope.maxOdds = 30;
         $scope.extraPlaceEvent = false;
         $scope.knownBookies = [
             {name: 'Bet 365', short: 'B365'},
@@ -247,7 +253,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         function recalculate(bookie) {
             var isProfit = false,
                 isOk = false,
-                bestResult;
+                bestResults = {};
 
             bookie.markets.forEach(function(market) {
                 market.runners.forEach(function(runner) {
@@ -258,17 +264,21 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     runner.layOdds = bbUtils.normalizePrice(runner.lay && runner.lay.bf && runner.lay.bf.price);
                     runner.size = runner.lay && runner.lay.bf && runner.lay.bf.size;
                     runner.result = runner.result || {};
+                    runner.outOfRange = runner.backOdds > bookie.maxOdds || runner.backOdds < bookie.minOdds;
                     if (bookie.processors) {
                         bookie.processors.forEach(function(processor) {
                             if (processor.enabled) {
                                 runner.result[processor.id] = processor.func(runner, bookie.backStake, bookie.layCommission, bookie);
                                 var result = runner.result[processor.id];
+                                result.isBest = false;
+                                result.outOfRange = runner.outOfRange;
 
-                                if (processor.enabled && result && result.enough) {
+                                if (processor.enabled && result && result.enough && !result.outOfRange) {
                                     isProfit = isProfit || result.isProfit;
                                     isOk = isOk || result.isOk;
+                                    var bestResult = bestResults[processor.id];
                                     if (!bestResult || bestResult.profit < result.profit) {
-                                        bestResult = result;
+                                        bestResults[processor.id] = result;
                                     }
                                 }
                             }
@@ -276,8 +286,19 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     }
                 });
             });
+            bookie.bestResults = bestResults;
+            var bestOverall;
+            bookie.processors.forEach(function(processor) {
+                var result = bestResults[processor.id];
+                if (result) {
+                    result.isBest = true;
+                    if (!bestOverall || bestOverall.profit < result.profit) {
+                        bestOverall = result;
+                    }
+                }
+            });
             bookie.summary = {
-                text: !!bestResult ? bestResult.profit.toFixed(2) : '...',
+                text: !!bestOverall ? bestOverall.profit.toFixed(2) : '...',
                 isProfit: isProfit,
                 isOk: isOk && !isProfit
             };
@@ -462,13 +483,14 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     return {
                         name: knownBookie.name,
                         backStake: 10,
+                        minOdds: 1,
+                        maxOdds: 20,
                         layCommission: 5,
                         backWinnerTerms: 0,
                         processors: [
                             {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: true},
                             {name: 'Freebet', id: 'snr', func: bbProcessors.freeSnr, enabled: false},
-                            {name: 'Each way', id: 'ew', func: bbProcessors.eachWay, enabled: true},
-                            {name: 'Winner', id: 'winner', func: bbProcessors.backWinner, enabled: false}
+                            {name: 'Each way', id: 'ew', func: bbProcessors.eachWay, enabled: true}
                         ],
                         summary: {}
                     }
@@ -490,6 +512,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                 if (newBookie) {
                                     newBookie.layCommission = oldBookie.layCommission;
                                     newBookie.backStake = oldBookie.backStake;
+                                    newBookie.minOdds = oldBookie.minOdds;
+                                    newBookie.maxOdds = oldBookie.maxOdds;
                                     newBookie.marked = oldBookie.marked;
                                     for (var i = 0; i < newBookie.processors.length; i += 1) {
                                         if (i < oldBookie.processors.length) {

@@ -178,5 +178,21 @@ describe('Scrapers', function() {
             expect(runner.name).toBe('0 - 1');
             expect(runner.price).toBe('10/4');
         });
+        it('should scrape football page', function() {
+            var html = '<div id="center_content">' +
+                '<div class="coupon_header scrollable">' +
+                    '<div class="coupon_header_titles">' +
+                        '<h4><span class="localized-time"><em>Saturday</em>12:45</span></h4>' +
+                        '<h1>\nStoke City v Aston Villa\n</h1>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+            $('body').append($(html));
+
+            var result = window.bb_getBetvictorFootball();
+            expect(result.debug).toBeDefined();
+            expect(result.debug.home).toBe('Stoke City');
+            expect(result.debug.away).toBe('Aston Villa');
+        });
     });
 });

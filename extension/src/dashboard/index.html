@@ -16,8 +16,6 @@
 <div id="main-div" ng-controller="MainCtrl">
     <div class="main-toolbar">
         <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
-        <label for="max-odds">Max odds</label>
-        <input class="number-std" id="max-odds" type="text" ng-model="maxOdds">
     </div>
     <div class="events-container">
         <table class="events">
@@ -56,17 +54,20 @@
             <input id="back-stake" type="number" ng-model="selectedBookie.backStake" maxlength="3">
             <label for="lay-comm">Lay comm (%)</label>
             <input id="lay-comm" type="number" ng-model="selectedBookie.layCommission" maxlength="3">
-            <label for="winner-terms">Back winner</label>
-            <input id="winner-terms" type="number" ng-model="selectedBookie.backWinnerTerms" maxlength="1">
-            <span class="ew-terms" ng-show="selectedBookie.ew">EW: 1/{{selectedBookie.ew.fraction}} ({{selectedBookie.ew.places}} places)</span>
+            <label for="min-odds">Min odds</label>
+            <input id="min-odds" type="number" ng-model="selectedBookie.minOdds" maxlength="3">
+            <label for="max-odds">Max odds</label>
+            <input id="max-odds" type="number" ng-model="selectedBookie.maxOdds" maxlength="3">
             <ul class="bookie-processors">
                 <li ng-repeat="processor in selectedBookie.processors track by $index">
                     <label for="{{processor.id + $index}}">{{processor.name}}</label>
                     <input id="{{processor.id + $index}}" type="checkbox" ng-model="processor.enabled">
                 </li>
             </ul>
+            <span class="ew-terms" ng-show="selectedBookie.ew">EW: 1/{{selectedBookie.ew.fraction}} ({{selectedBookie.ew.places}} places)</span>
             <label for="marked">Star</label>
             <input id="marked" type="checkbox" ng-model="selectedBookie.marked">
+            <!--<span>{{selectedBookie.bestResults}}</span>-->
         </div>
     </div>
     <div class="extra-place-runners" ng-show="extraPlaceEvent">
@@ -186,8 +187,14 @@
                     </td>
                     <td ng-repeat="processor in selectedBookie.processors track by $index"
                         ng-show="processor.enabled"
-                        ng-class="{green: runner.result[processor.id].isProfit, yellow: runner.result[processor.id].isOk, lowsize: !runner.result[processor.id].enough}">
+                        ng-class="{
+                            green: runner.result[processor.id].isProfit,
+                            yellow: runner.result[processor.id].isOk,
+                            lowsize: !runner.result[processor.id].enough,
+                            'out-of-range': runner.result[processor.id].outOfRange && runner.result[processor.id].enough
+                        }">
                         {{runner.result[processor.id].profit | number:2}}
+                        <i class="fa fa-star" ng-show="runner.result[processor.id].isBest"></i>
                     </td>
                 </tr>
             </tbody>

@@ -121,9 +121,12 @@ th {
 .number-std, #locked-back-odds {
     width: 60px;
 }
-.lowsize {
+.lowsize, .out-of-range {
     text-decoration: line-through;
     color: #c0c0c0;
+}
+.out-of-range {
+    color: lightpink;
 }
 label, table .fa {
     font-weight: normal;

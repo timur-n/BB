@@ -11,7 +11,10 @@ if (!window.__karma__) {
 
 window.bb_getSkyFootball = function() {
     var result = {
-            bookies: [{name: 'Sky Bet', markets: []}]
+            bookies: [{name: 'Sky Bet', markets: []}],
+            debug: {
+                markets: []
+            }
         },
         markets = result.bookies[0].markets,
         $root = $('#content'),
@@ -21,6 +24,9 @@ window.bb_getSkyFootball = function() {
         home = '',
         away = '';
 
+    if (!$panels.length) {
+        $panels = $root.find('div [data-class-id]');
+    }
 
     function getText($item) {
         return $item.text().trim().replace(/\s*\n\s*/g, ' ');
@@ -33,29 +39,27 @@ window.bb_getSkyFootball = function() {
     function renameMarket(name) {
         return name
             .replace(/Full Time Result/gi, 'Match Odds')
-            .replace(/Half-Time\/Full-Time/gi, 'Half Time/Full Time');
+            .replace(/Half-Time\/Full-Time/gi, 'HT / FT');
     }
 
     function renameRunner(marketName, name, home, away) {
         var newName = name
             .replace(/Manchester City/gi, 'Man City')
             .replace(/Manchester Utd/gi, 'Man Utd')
+            .replace(/Sheffield Wednesday/gi, 'Sheff Wed')
             .replace(/Manchester United/gi, 'Man Utd');
         if (/Correct Score/gi.test(marketName)) {
-            var newName2 = bb.normalizeCorrectScore(newName, home, away);
-            if (!newName2) {
-            } else {
-                newName = newName2;
-            }
+            newName = bb.normalizeCorrectScore(newName, home, away);
+            result.debug.markets.push({oldName: name, name: newName, home: home, away: away});
         }
-        if (/Half Time\/Full Time/gi.test(marketName)) {
+        if (/HT \/ FT/gi.test(marketName)) {
             newName = bb.normalizeHtFt(newName);
         }
         return newName;
     }
 
     function isKnownMarket(name) {
-        var knownMarkets = ['Match Odds', 'Correct Score', 'Half Time/Full Time', 'Under/Over 2.5 Goals'];
+        var knownMarkets = ['Match Odds', 'Correct Score', 'HT / FT', 'Under/Over 2.5 Goals'];
         return knownMarkets.indexOf(name) >= 0;
     }
 
@@ -65,6 +69,7 @@ window.bb_getSkyFootball = function() {
             var $market = $(this),
                 $marketName = $market.find('.section-head'),
                 marketName = renameMarket(getTextNoChildren($marketName));
+            //result.debug.markets.push(marketName);
             if (marketName && isKnownMarket(marketName)) {
                 var market = {
                     name: marketName,
@@ -103,15 +108,17 @@ window.bb_getSkyFootball = function() {
         time: time.replace(/([A-Za-z0-9 ]*)\|([A-Za-z0-9 ]*)\| ()/gi, '$3')
     };
     if (!result.event.name) {
-        result.event.name = getText($subtitle.find('span.current'));
+        result.event.name = getText($('.breadcrumb-live span.current'));
+        result.event.time = 'Live';
     }
 
     var nameRexExp = /([A-z ]*)(.v.)([A-z ]*)/gi;
-    home = result.event.name.replace(nameRexExp, '$1');
-    away = result.event.name.replace(nameRexExp, '$3');
-    result.debug = {
-        home: renameRunner('', home),
-        away: renameRunner('', away)
+    home = renameRunner('', result.event.name.replace(nameRexExp, '$1'));
+    away = renameRunner('', result.event.name.replace(nameRexExp, '$3'));
+    result.event.name = home + ' v ' + away;
+    result.debug.homeOrAway = {
+        home: home,
+        away: away
     };
     if (!$panels.length) {
         $panels = $();

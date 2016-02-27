@@ -289,6 +289,9 @@ function createBetfair() {
                 } else {
                     name = 'Win';
                 }
+            } else if (market.eventType.id === eventTypes.football) {
+                name = market.marketName
+                    .replace(/Half Time\/Full Time/gi, 'HT / FT');
             }
         }
         return name;

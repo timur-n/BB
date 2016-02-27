@@ -97,7 +97,6 @@ angular.module('BBProcessors', [])
         return {
             qualifier: calcQualifier,
             freeSnr: calcFreebet,
-            backWinner: backWinner,
             eachWay: calcEachWay
         };
     }]);

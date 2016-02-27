@@ -59,7 +59,7 @@ describe('Main app', function() {
         });
 
         describe('objByStr', function() {
-            it('should find object by integer value', function () {
+            it('should find object by string value', function () {
                 var array = [{id: 'String 1'}, {id: 'STRING 2'}, {id: 'string 3'}];
                 var i = svc.objByStr(array, 'id', 'String 1');
                 expect(i).toBe(array[0]);
@@ -76,6 +76,14 @@ describe('Main app', function() {
                 expect(function() {
                     var obj = svc.objByStr(array, 'none', 'test');
                 }).not.toThrow();
+            });
+
+            it('should find object by approx string', function() {
+                var array = [{id: 'Hull'}, {id: 'Manchester City'}];
+                var i = svc.objByStr(array, 'id', 'Hull City');
+                expect(i).toBe(array[0]);
+                i = svc.objByStr(array, 'id', 'Manchester');
+                expect(i).toBe(array[1]);
             });
         });
 
@@ -205,8 +213,7 @@ describe('Main app', function() {
         it('should update Betfair data in existing event', function() {
             $scope.updateData({
                 id: 1,
-                data: simpleData(),
-                url: 'http://skybet.com/event/1'
+                data: simpleData()
             });
             expect($scope.events.length).toBe(1);
             $scope.events[0].betfair = '123456';
@@ -305,6 +312,60 @@ describe('Main app', function() {
             tabData.data.bookies[0].markets[0].runners[0].price = '4/1';
             $scope.updateData(tabData);
             expect(runner.backOdds).toBe(15);
+        });
+
+        it('should calculate best results', function() {
+            var data = simpleData();
+            data.bookies[0].ew = {fraction: 4, places: 2};
+            $scope.updateData({
+                id: 1,
+                data: data
+            });
+            expect($scope.events.length).toBe(1);
+            var event = $scope.events[0];
+            var bookie = event.bookies[1];
+            expect(bookie.ew).toBeDefined();
+            bookie.processors.forEach(function(processor) {
+                processor.enabled = true;
+            });
+            var market = bookie.markets[0];
+
+            $scope.events[0].betfair = '123456';
+            // Betfair data must match simpleData()
+            $scope.updateBetfairData({
+                betfair: '123456',
+                markets: [
+                    {
+                        event: {},
+                        eventType: {},
+                        name: 'market 1',
+                        runners: [
+                            {name: 'runner 3', price: '33', size: 300},
+                            {name: 'runner 2', price: '22', size: 200},
+                            {name: 'runner 1', price: '11.5', size: 100}
+                        ]
+                    },
+                    {
+                        event: {},
+                        eventType: {},
+                        name: 'Place',
+                        runners: [
+                            {name: 'runner 3', price: '33', size: 300},
+                            {name: 'runner 2', price: '22', size: 200},
+                            {name: 'runner 1', price: '11.5', size: 100}
+                        ]
+                    }
+                ]
+            });
+
+            expect(market.runners.length).toBe(2);
+            var runner = market.runners[0];
+            expect(runner.result.q).toBeDefined();
+            expect(runner.result.snr).toBeDefined();
+            expect(runner.result.ew).toBeDefined();
+            expect(runner.result.q.isBest).toBe(false);
+            expect(runner.result.snr.isBest).toBe(false);
+            expect(runner.result.ew.isBest).toBe(false);
         });
 
         it('should remove event if there are no tabs streaming its data', function() {
