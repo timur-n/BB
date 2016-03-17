@@ -80,15 +80,17 @@ describe('Scrapers', function() {
     describe('Willhill', function() {
         it('should scrape page', function() {
             // todo-timur: add runners html and tests
-            var html = '<div id="primaryCollectionContainer">' +
+            var html =
+                '<div id="contentHead"><h2>Real Madrid v Roma - All Markets</h2><span id="eventDetailsHeader"><span>Bet until : 08 Mar  -19:45 UK</span></span></div>' +
+                '<div id="primaryCollectionContainer">' +
                     '<div id="ip_market_1"><span id="ip_market_name_1">Match Betting</span></div>' +
                 '</div>';
             $('body').append($(html));
 
             var result = window.bb_getWillhill();
             expect(result.event).toBeDefined();
-            expect(result.event.name).toBe('Test event');
-            expect(result.event.time).toBe('20:00');
+            expect(result.event.name).toBe('Real Madrid v Roma');
+            expect(result.event.time).toBe('19:45');
             expect(result.bookies).toBeDefined();
             expect(result.bookies.length).toBe(1);
             var bookie = result.bookies[0];

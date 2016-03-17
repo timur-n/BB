@@ -6,7 +6,7 @@ function getScope() {
 }
 
 function dataCallback(data) {
-	console.log('Data callback', data);
+	//console.log('Data callback', data);
 	getScope().updateData(data);
 }
 

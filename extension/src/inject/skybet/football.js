@@ -39,7 +39,8 @@ window.bb_getSkyFootball = function() {
     function renameMarket(name) {
         return name
             .replace(/Full Time Result/gi, 'Match Odds')
-            .replace(/Half-Time\/Full-Time/gi, 'HT / FT');
+            .replace(/Half-Time\/Full-Time/gi, 'HT / FT')
+            .replace(/Under\/Over/gi, 'Over/Under');
     }
 
     function renameRunner(marketName, name, home, away) {
@@ -48,18 +49,18 @@ window.bb_getSkyFootball = function() {
             .replace(/Manchester Utd/gi, 'Man Utd')
             .replace(/Sheffield Wednesday/gi, 'Sheff Wed')
             .replace(/Manchester United/gi, 'Man Utd');
-        if (/Correct Score/gi.test(marketName)) {
+        if ('Correct Score' === marketName) {
             newName = bb.normalizeCorrectScore(newName, home, away);
-            result.debug.markets.push({oldName: name, name: newName, home: home, away: away});
+            //result.debug.markets.push({oldName: name, name: newName, home: home, away: away});
         }
-        if (/HT \/ FT/gi.test(marketName)) {
+        if ('HT / FT' === marketName) {
             newName = bb.normalizeHtFt(newName);
         }
         return newName;
     }
 
     function isKnownMarket(name) {
-        var knownMarkets = ['Match Odds', 'Correct Score', 'HT / FT', 'Under/Over 2.5 Goals'];
+        var knownMarkets = ['Match Odds', 'Correct Score', 'HT / FT', 'Over/Under 2.5 Goals'];
         return knownMarkets.indexOf(name) >= 0;
     }
 
@@ -69,7 +70,7 @@ window.bb_getSkyFootball = function() {
             var $market = $(this),
                 $marketName = $market.find('.section-head'),
                 marketName = renameMarket(getTextNoChildren($marketName));
-            //result.debug.markets.push(marketName);
+            result.debug.markets.push(marketName);
             if (marketName && isKnownMarket(marketName)) {
                 var market = {
                     name: marketName,
@@ -112,7 +113,7 @@ window.bb_getSkyFootball = function() {
         result.event.time = 'Live';
     }
 
-    var nameRexExp = /([A-z ]*)(.v.)([A-z ]*)/gi;
+    var nameRexExp = /([A-z ]*)(\sv\s)([A-z ]*)/i;
     home = renameRunner('', result.event.name.replace(nameRexExp, '$1'));
     away = renameRunner('', result.event.name.replace(nameRexExp, '$3'));
     result.event.name = home + ' v ' + away;

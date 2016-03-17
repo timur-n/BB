@@ -138,12 +138,13 @@ function matchMarketsAndPrices(markets, prices) {
     }
 
     function renameRunner(name, marketInfo) {
+        var newName = name;
         if (marketInfo.eventType && marketInfo.eventType.id === eventTypes.football) {
-            if (name === 'The Draw') {
-                return 'Draw';
-            }
+            newName = newName
+                .replace(/The Draw/, 'Draw')
+                .replace(/C Palace/, 'Crystal Palace');
         }
-        return name;
+        return newName;
     }
 
     if (Array.isArray(markets) && Array.isArray(prices)) {

@@ -2,17 +2,17 @@ angular.module('BBStorage', [])
     .factory('bbStorage', ['$log', function($log) {
         return {
             set: function(name, value) {
-                $log.debug('bb-storage.set()', name, value);
+                //$log.debug('bb-storage.set()', name, value);
                 var storage = {};
                 storage[name] = value;
                 chrome.storage.local.set(storage, function() {
-                    $log.debug('bb-storage.set(): saved');
+                    //$log.debug('bb-storage.set(): saved');
                 });
             },
             get: function(name, callback) {
-                $log.debug('bb-storage.get()', name);
+                //$log.debug('bb-storage.get()', name);
                 chrome.storage.local.get(name, function(items) {
-                    $log.debug('bb-storage.get(): loaded', items[name]);
+                    //$log.debug('bb-storage.get(): loaded', items[name]);
                     callback(items[name]);
                 });
             },
@@ -42,8 +42,9 @@ angular.module('BBUtils', [])
                     var str1 = val.toString().toLowerCase(),
                         str2 = value.toString().toLowerCase(),
                         stringsMatch = str1 === str2
-                        || str1.indexOf(str2) >= 0
-                        || str2.indexOf(str1) >= 0;
+                    // todo-timur: this doesn't work well for Betfair Sportsbook bookie detection, if finds Betfair instead (exchange)
+                        /*|| str1.indexOf(str2) >= 0
+                        || str2.indexOf(str1) >= 0*/;
                     if (stringsMatch) {
                         return i;
                     }
@@ -116,6 +117,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             //{name: 'Boylesports', short: 'Boyle'},
             {name: 'William Hill', short: 'WH'}
         ];
+        $scope.isLogOn = false;
 
         var dataTypes = {
             back: 'back',
@@ -161,21 +163,25 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
             this.place = this.place || {};
             this.place.backOdds = bbUtils.getPlaceOdds(this.backOdds, {places: 0, fraction: bestEwFraction});
-            this.result = bbProcessors.eachWay(this, this.backStake, 5, {});
+            this.result = bbProcessors.eachWay(this, this.backStake, $scope.extraPlaceEvent.layCommission || 0, {});
             $scope.recalculateExtraPlaceEvent();
         };
-        ExtraPlaceRunner.prototype.updateBackOdds = function(bookie) {
+        ExtraPlaceRunner.prototype.updateBackOdds = function(bookie, excludedBookies) {
             var myBookie = bbUtils.objByStr(this.bookies, 'name', bookie.name);
             if (myBookie) {
                 if (bookie.ew) {
                     myBookie.ew = bookie.ew;
                 }
-                var market = bbUtils.objByStr(bookie.markets, 'name', 'Win');
-                if (market) {
-                    var runner = bbUtils.objByStr(market.runners, 'name', this.name);
-                    if (runner) {
-                        myBookie.backOdds = runner.backOdds;
-                        this.recalculate();
+                if (excludedBookies && excludedBookies.indexOf(bookie.name) >= 0) {
+                    myBookie.backOdds = 0;
+                } else {
+                    var market = bbUtils.objByStr(bookie.markets, 'name', 'Win');
+                    if (market) {
+                        var runner = bbUtils.objByStr(market.runners, 'name', this.name);
+                        if (runner) {
+                            myBookie.backOdds = runner.backOdds;
+                            this.recalculate();
+                        }
                     }
                 }
             }
@@ -221,6 +227,12 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
             this.isBacked = bookie.isSelected;
         };
+
+        function log() {
+            if ($scope.isLogOn) {
+                $log.debug.apply(this, arguments);
+            }
+        }
 
         $scope.createExtraPlaceRunner = function(name) {
             return new ExtraPlaceRunner(name, this.knownBookies);
@@ -409,7 +421,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                             epRunner = $scope.createExtraPlaceRunner(runner.name);
                                             $scope.extraPlaceEvent.runners.push(epRunner);
                                         }
-                                        epRunner.updateBackOdds(bookie);
+                                        epRunner.updateBackOdds(bookie, $scope.extraPlaceEvent.excludedBookies);
                                     })
                                 }
                             })
@@ -474,7 +486,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         };
 
         $scope.updateData = function(tabData) {
-            //$log.debug('Update data...', tabData);
+            log('updateData()', tabData);
             var eventId = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);
             var event = bbUtils.objByValue($scope.events, 'id', eventId);
             if (!event && eventId) {
@@ -554,7 +566,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         }
 
         $scope.updateBetfairData = function(betfairData) {
-            $log.debug('++ Received betfair data', betfairData);
+            log('updateBetfairData()', betfairData);
             var event = bbUtils.objByStr($scope.events, 'betfair', betfairData.betfair);
             if (event) {
                 event.betfairCount = bbUtils.getMarketCount(event.betfair);
@@ -626,8 +638,17 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                     if (runner.place && savedRunner.place) {
                                         runner.place.layOdds = savedRunner.place.layOdds;
                                     }
+                                    savedRunner.bookies.forEach(function(savedBookie) {
+                                        if (savedBookie.isSelected) {
+                                            var bookie = bbUtils.objByStr(runner.bookies, 'name', savedBookie.name);
+                                            if (bookie) {
+                                                runner.toggle(bookie);
+                                            }
+                                        }
+                                    });
                                 }
                             });
+                            $scope.extraPlaceEvent.excludedBookies = value.excludedBookies || [];
                         }
                         $scope.extraPlaceEvent.loaded = true;
                     }
@@ -635,6 +656,19 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 updateExtraPlaceBookies(event);
             } else {
                 $scope.extraPlaceEvent = false;
+            }
+        };
+
+        $scope.toggleExtraPlaceBookie = function(knownBookie) {
+            if ($scope.extraPlaceEvent) {
+                $scope.extraPlaceEvent.excludedBookies = $scope.extraPlaceEvent.excludedBookies || [];
+                var excludedBookies = $scope.extraPlaceEvent.excludedBookies;
+                var i = excludedBookies.indexOf(knownBookie.name);
+                if (i >= 0) {
+                    excludedBookies.splice(i, 1);
+                } else {
+                    excludedBookies.push(knownBookie.name);
+                }
             }
         };
 

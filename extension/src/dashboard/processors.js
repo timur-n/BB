@@ -78,7 +78,7 @@ angular.module('BBProcessors', [])
             var winResult = calcQualifier(runner, backStake, layCommission),
                 placeResult = {profit: NaN};
             if (runner.place) {
-                placeResult = calcQualifier(runner.place, backStake, 5); // todo-timur: betfair only?
+                placeResult = calcQualifier(runner.place, backStake, layCommission);
             }
             var result = {
                 win: winResult,
