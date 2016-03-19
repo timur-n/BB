@@ -10,12 +10,15 @@
     <script type="text/javascript" src="betfair-api.js"></script>
     <script type="text/javascript" src="dashboard.js"></script>
     <script type="text/javascript" src="processors.js"></script>
+    <script type="text/javascript" src="storage.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
     <script type="text/javascript" src="app.js"></script>
 </head>
 <body ng-app="BBApp">
 <div id="main-div" ng-controller="MainCtrl">
     <div class="main-toolbar">
         <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
+        <input type="number" class="number-std" ng-model="extraPlaceEvent.layCommission">
         <input type="checkbox" id="isLogOn" ng-model="isLogOn">
         <label for="isLogOn">Log</label>
     </div>
@@ -99,9 +102,9 @@
                 <th>Liab.</th>
                 <th>P/L</th>
             </tr>
-            <tr ng-repeat="runner in extraPlaceEvent.runners track by $index" ng-class="{subtle: runner.isBacked}">
+            <tr ng-repeat="runner in extraPlaceEvent.runners track by $index" ng-class="{subtle: runner.isBacked, selected: runner.isSelected}">
                 <td class="event-name" ng-class="{selected: runner.selected}">
-                    <a ng-click="selectRunner(runner)">{{runner.name}}</a>
+                    <a ng-click="runner.toggleRunner()">{{runner.name}}</a>
                 </td>
                 <td ng-repeat="bookie in runner.bookies track by $index" ng-class="{subtle: !bookie.isBest, selected: bookie.isSelected}" class="price">
                     <a ng-click="runner.toggle(bookie)">{{bookie.backOdds}}</a>

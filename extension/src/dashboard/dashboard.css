@@ -6,7 +6,7 @@ table table {
 }
 td, th {
     border: 1px solid transparent;
-    padding: 2px 5px;
+    padding: 1px 2px;
 }
 .events {
     border-collapse: separate;
@@ -192,6 +192,9 @@ input[type=text], input[type=number] {
 }
 .bookie.Bfr {
     background-position: -170px 0;
+}
+.bookie.Winner {
+    background-position: -476px 0;
 }
 .betfair-ids {
     width: 500px;
