@@ -33,7 +33,7 @@ window.bb_getOddschekerFootball = function(result) {
 
     $rows.each(function() {
         var $row = $(this);
-        var runnerName = $row.find('td a.popup.selTxt').text().trim();
+        var runnerName = $row.find('td a.selTxt').text().trim();
         if (/Correct Score/gi.test(marketName)) {
             runnerName = bb.normalizeCorrectScore(runnerName, home, away);
             //result.debug.markets.push({oldName: name, name: newName, home: home, away: away});

@@ -77,6 +77,7 @@
     </div>
     <div class="extra-place-runners" ng-show="extraPlaceEvent">
         <a ng-click="selectExtraPlaceEvent(false)">Close</a>
+        <span>Runners: {{extraPlaceEvent && extraPlaceEvent.runners.length}}</span>
         <table class="runner-list">
             <tr>
                 <th rowspan="2">Name</th>

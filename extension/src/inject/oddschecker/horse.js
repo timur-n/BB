@@ -55,7 +55,7 @@ window.bb_getOddschekerHorse = function(result) {
 
     $rows.each(function() {
         var $row = $(this);
-        var runnerName = $row.find('td a.popup.selTxt').text().trim();
+        var runnerName = $row.find('td a.selTxt').text().trim();
         //result.debug.runners.push(runnerName);
         var $cells = $row.find('td[data-odig]');
         //result.debug.cells = result.debug.cells || $cells.length;
@@ -70,7 +70,9 @@ window.bb_getOddschekerHorse = function(result) {
             var bookie = bookies[index];
             bookie.markets = bookie.markets || [{name: 'Win', runners: []}];
             var market = bookie.markets[0];
-            market.runners.push({name: runnerName, price: price});
+            if (runnerName) {
+                market.runners.push({name: runnerName, price: price});
+            }
         });
     });
 

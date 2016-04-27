@@ -138,7 +138,7 @@ function matchMarketsAndPrices(markets, prices) {
     }
 
     function renameRunner(name, marketInfo) {
-        var newName = name;
+        var newName = name.replace('. ', ' ').replace('.', ' ');
         if (marketInfo.eventType && marketInfo.eventType.id === eventTypes.football) {
             newName = newName
                 .replace(/The Draw/, 'Draw')

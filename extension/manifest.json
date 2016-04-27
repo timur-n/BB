@@ -26,6 +26,7 @@
         "*://smarkets.com/*",
         "*://www.skybet.com/*",
         "*://www.betvictor.com/sports/en/football/*",
+        "*://betstars.uk/#/soccer/*",
         "*://sports.williamhill.com/bet/*",
         "*://www.oddschecker.com/*"
       ],
@@ -42,6 +43,10 @@
     {
       "matches": ["https://smarkets.com/*/football/*"],
       "js": ["src/inject/smarkets/football.js"]
+    },
+    {
+      "matches": ["*://www.betstars.uk/#/soccer/*"],
+      "js": ["src/inject/pokerstars/football.js"]
     },
     {
       "matches": ["*://www.skybet.com/horse-racing/*"],

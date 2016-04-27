@@ -311,7 +311,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             tabData.data.bookies.forEach(function(bookie) {
                 bookie.markets.forEach(function(market) {
                     market.runners.forEach(function(runner) {
-                        runner.name = runner.name.replace(/'/gi, '');
+                        runner.name = runner.name.replace(/'/gi, '').replace('-', ' ');
                     });
                 });
             });

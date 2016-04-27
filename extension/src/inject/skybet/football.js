@@ -24,18 +24,6 @@ window.bb_getSkyFootball = function() {
         home = '',
         away = '';
 
-    if (!$panels.length) {
-        $panels = $root.find('div [data-class-id]');
-    }
-
-    function getText($item) {
-        return $item.text().trim().replace(/\s*\n\s*/g, ' ');
-    }
-
-    function getTextNoChildren($item) {
-        return getText($item.clone().children().remove().end());
-    }
-
     function renameMarket(name) {
         return name
             .replace(/Full Time Result/gi, 'Match Odds')
@@ -49,10 +37,6 @@ window.bb_getSkyFootball = function() {
             .replace(/Manchester Utd/gi, 'Man Utd')
             .replace(/Sheffield Wednesday/gi, 'Sheff Wed')
             .replace(/Manchester United/gi, 'Man Utd');
-        if ('Correct Score' === marketName) {
-            newName = bb.normalizeCorrectScore(newName, home, away);
-            //result.debug.markets.push({oldName: name, name: newName, home: home, away: away});
-        }
         if ('HT / FT' === marketName) {
             newName = bb.normalizeHtFt(newName);
         }
@@ -64,46 +48,6 @@ window.bb_getSkyFootball = function() {
         return knownMarkets.indexOf(name) >= 0;
     }
 
-    function collectMarkets($parent, selector) {
-        var $markets = $parent.find(selector);
-        $markets.each(function() {
-            var $market = $(this),
-                $marketName = $market.find('.section-head'),
-                marketName = renameMarket(getTextNoChildren($marketName));
-            result.debug.markets.push(marketName);
-            if (marketName && isKnownMarket(marketName)) {
-                var market = {
-                    name: marketName,
-                    runners: []
-                };
-                var $runners = $market.find('table.mkt td a.oc-odds-desc');
-                $runners.each(function() {
-                    var $runner = $(this),
-                        runner = {
-                            name: renameRunner(marketName, getText($runner.find('span.oc-desc')), home, away),
-                            price: getText($runner.find('b.odds'))
-                        };
-                    if (runner.name) {
-                        market.runners.push(runner);
-                    }
-                });
-/*
-                if (/Correct Score/gi.test(market.name)) {
-                    market.runners.sort(function(a, b) {
-                        return a > b;
-                    });
-                }
-*/
-                markets.push(market);
-            }
-        });
-    }
-
-/*
-    var $boost = $('.priceboost-mktgrp');
-    result.boostRunner = getRunnerName($boost.find('.oc-runner h4'));
-    result.boostPrice = $boost.find('.oc-priceboost .odds').text().trim();
-*/
     result.event = {
         name: getText($root.find('.content-head h1')),
         time: time.replace(/([A-Za-z0-9 ]*)\|([A-Za-z0-9 ]*)\| ()/gi, '$3')
