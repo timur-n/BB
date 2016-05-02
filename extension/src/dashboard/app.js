@@ -532,6 +532,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             if (event) {
                 $scope.extraPlaceEvent = {
                     eventId: event.id,
+                    name: event.name,
                     runners: [],
                     summary: {},
                     loaded: false
