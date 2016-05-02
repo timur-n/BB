@@ -18,10 +18,8 @@ window.bb_getOddschekerHorse = function(result) {
         $ewRow = $('#etfEW td[data-ew-div]');
 
     result.event = result.event || {};
-    result.event.name = $('.nav-popout.selected').clone().children().remove().end().text();
-    if (!result.event.name) {
-        result.event.name = $('.page-description h1').text().trim();
-    }
+    result.event.name = bb.getText($('.page-description h1'))
+        .replace(/([A-z]*)([ 0-9:]*)([\w ]*)/gi, '$1');
     result.event.time = $('.event li.selected a').text();
     if (!result.event.time) {
         result.event.time = '00:00';
@@ -59,21 +57,22 @@ window.bb_getOddschekerHorse = function(result) {
         //result.debug.runners.push(runnerName);
         var $cells = $row.find('td[data-odig]');
         //result.debug.cells = result.debug.cells || $cells.length;
-        if (bookies.length !== $cells.length) {
+        if (bookies.length === $cells.length) {
+            $cells.each(function(index) {
+                var $cell = $(this);
+                var price = $cell.text().trim();
+                //result.debug.bookies = result.debug.bookies || bookieName;
+                //result.debug.bookie = result.debug.bookie || bookie;
+                var bookie = bookies[index];
+                bookie.markets = bookie.markets || [{name: 'Win', runners: []}];
+                var market = bookie.markets[0];
+                if (runnerName) {
+                    market.runners.push({name: runnerName, price: price});
+                }
+            });
+        } else if (runnerName) {
             throw new Error('Bookies count does not match odds cell count, runner [' + runnerName + ']');
         }
-        $cells.each(function(index) {
-            var $cell = $(this);
-            var price = $cell.text().trim();
-            //result.debug.bookies = result.debug.bookies || bookieName;
-            //result.debug.bookie = result.debug.bookie || bookie;
-            var bookie = bookies[index];
-            bookie.markets = bookie.markets || [{name: 'Win', runners: []}];
-            var market = bookie.markets[0];
-            if (runnerName) {
-                market.runners.push({name: runnerName, price: price});
-            }
-        });
     });
 
     result.bookies = bookies;
