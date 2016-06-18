@@ -18,7 +18,8 @@
 <div id="main-div" ng-controller="MainCtrl">
     <div class="main-toolbar">
         <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
-        <input type="number" class="number-std" ng-model="extraPlaceEvent.layCommission">
+        <label for="ep-comm">Comm %</label>
+        <input type="number" id="ep-comm" class="number-std" ng-model="extraPlaceEvent.layCommission">
         <input type="checkbox" id="isLogOn" ng-model="isLogOn">
         <label for="isLogOn">Log</label>
     </div>
@@ -79,6 +80,8 @@
         <a ng-click="selectExtraPlaceEvent(false)">Close</a>
         <span class="bold">{{extraPlaceEvent && extraPlaceEvent.name}} </span>
         <span>Runners: {{extraPlaceEvent && extraPlaceEvent.runners.length}}</span>
+        <label for="ep-filter">Min loss</label>
+        <input id="ep-filter" type="number" class="number-std" ng-model="extraPlaceEvent.filter">
         <table class="runner-list">
             <tr>
                 <th rowspan="2">Name</th>
@@ -103,6 +106,25 @@
                 <th>P/L</th>
                 <th>Liab.</th>
                 <th>P/L</th>
+            </tr>
+            <tr class="ew-terms">
+                <td>Each way terms</td>
+                <td ng-repeat="bookie in extraPlaceEvent.runners[0].bookies track by $index" class="ew-terms">
+                    <p class="ew-places">{{bookie.ew.places}}</p>
+                    <p class="ew-fraction">1/{{bookie.ew.fraction}}</p>
+                </td>
+                <td colspan="3"></td>
+                <td></td>
+                <td>{{extraPlaceEvent.totals.win.liability | number:2}}</td>
+                <td>{{extraPlaceEvent.totals.win.profit | number:2}}</td>
+                <td colspan="2"></td>
+                <td></td>
+                <td>{{extraPlaceEvent.totals.place.liability | number:2}}</td>
+                <td>{{extraPlaceEvent.totals.place.profit | number:2}}</td>
+                <td>{{extraPlaceEvent.totals.liability | number:2}}</td>
+                <td class="profit" ng-class="{green: extraPlaceEvent.totals.isProfit, yellow: extraPlaceEvent.totals.isOk}">
+                    {{extraPlaceEvent.totals.profit | number:2}}
+                </td>
             </tr>
             <tr ng-repeat="runner in extraPlaceEvent.runners track by $index" ng-class="{subtle: runner.isBacked, selected: runner.isSelected}">
                 <td class="event-name" ng-class="{selected: runner.selected}">
@@ -140,25 +162,6 @@
                 <td>{{runner.result.place.profit | number:2}}</td>
                 <td class="liability">{{runner.result.liability | number:2}}</td>
                 <td class="profit" ng-class="{green: runner.result.isProfit, yellow: runner.result.isOk}">{{runner.result.profit | number:2}}</td>
-            </tr>
-            <tr class="ew-terms">
-                <td>Each way terms</td>
-                <td ng-repeat="bookie in extraPlaceEvent.runners[0].bookies track by $index" class="ew-terms">
-                    <p class="ew-places">{{bookie.ew.places}}</p>
-                    <p class="ew-fraction">1/{{bookie.ew.fraction}}</p>
-                </td>
-                <td colspan="3"></td>
-                <td></td>
-                <td>{{extraPlaceEvent.totals.win.liability | number:2}}</td>
-                <td>{{extraPlaceEvent.totals.win.profit | number:2}}</td>
-                <td colspan="2"></td>
-                <td></td>
-                <td>{{extraPlaceEvent.totals.place.liability | number:2}}</td>
-                <td>{{extraPlaceEvent.totals.place.profit | number:2}}</td>
-                <td>{{extraPlaceEvent.totals.liability | number:2}}</td>
-                <td class="profit" ng-class="{green: extraPlaceEvent.totals.isProfit, yellow: extraPlaceEvent.totals.isOk}">
-                    {{extraPlaceEvent.totals.profit | number:2}}
-                </td>
             </tr>
         </table>
     </div>

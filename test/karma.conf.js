@@ -9,6 +9,9 @@ module.exports = function(config) {
         files: [
             'extension/src/dashboard/angular.js',
             'extension/src/dashboard/processors.js',
+            'extension/src/dashboard/utils.js',
+            'extension/src/dashboard/storage.js',
+            'extension/src/dashboard/processors.js',
             'extension/src/dashboard/app.js',
             'extension/src/dashboard/betfair-api.js',
             'test/angular-mocks.js',

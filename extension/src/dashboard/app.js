@@ -396,6 +396,14 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
         };
 
+        $scope.extraPlaceFilterFn = function(value, index, array) {
+            if ($scope.extraPlaceEvent && $scope.extraPlaceEvent.filter) {
+                return value.result.profit >= $scope.extraPlaceEvent.filter
+            } else {
+                return true;
+            }
+        };
+
         $scope.updateData = function(tabData) {
             log('updateData()', tabData);
             var eventId = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);

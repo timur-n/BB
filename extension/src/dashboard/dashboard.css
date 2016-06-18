@@ -132,6 +132,11 @@ label, table .fa {
     font-weight: normal;
     color: #737373;
 }
+table .fa.fa-lock {
+    float: right;
+    margin-top: 5px;
+    margin-left: 5px;
+}
 input[type=text], input[type=number] {
     border-radius: 3px;
     border: 1px solid #c0c0c0;
