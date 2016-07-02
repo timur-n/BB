@@ -22,7 +22,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             {name: 'Coral', short: 'Coral'},
             //{name: 'Boylesports', short: 'Boyle'},
             {name: 'Winner', short: 'Winner'},
-            {name: 'William Hill', short: 'WH'}
+            {name: 'William Hill', short: 'WH'},
+            {name: '188Bet', short: 'b188'}
         ];
         $scope.isLogOn = false;
 
@@ -419,7 +420,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         layCommission: 5,
                         backWinnerTerms: 0,
                         processors: [
-                            {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: true},
+                            {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: false},
                             {name: 'Freebet', id: 'snr', func: bbProcessors.freeSnr, enabled: false},
                             {name: 'Each way', id: 'ew', func: bbProcessors.eachWay, enabled: true}
                         ],
