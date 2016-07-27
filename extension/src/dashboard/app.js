@@ -416,7 +416,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         name: knownBookie.name,
                         backStake: 10,
                         minOdds: 1,
-                        maxOdds: 20,
+                        maxOdds: 180,
                         layCommission: 5,
                         backWinnerTerms: 0,
                         processors: [

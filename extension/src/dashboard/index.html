@@ -149,7 +149,7 @@
                 </td>
                 <td>{{runner.result.win.layStake | number:2}}</td>
                 <td class="liability">{{runner.result.win.liability | number:2}}</td>
-                <td>{{runner.result.win.profit | number:2}}</td>
+                <td>{{runner.result.win.lostProfit | number:2}}</td>
                 <td class="back-odds" ng-class="{locked: runner.isLocked('winBack')}">{{runner.place.backOdds}}</td>
                 <td class="lay-odds" ng-class="{locked: runner.isLocked('placeLay')}">
                     <input type="number" ng-model="runner.place.layOdds" maxlength="4" ng-show="runner.isLocked('placeLay')">
@@ -159,9 +159,9 @@
                 </td>
                 <td>{{runner.result.place.layStake | number:2}}</td>
                 <td class="liability">{{runner.result.place.liability | number:2}}</td>
-                <td>{{runner.result.place.profit | number:2}}</td>
+                <td>{{runner.result.place.lostProfit | number:2}}</td>
                 <td class="liability">{{runner.result.liability | number:2}}</td>
-                <td class="profit" ng-class="{green: runner.result.isProfit, yellow: runner.result.isOk}">{{runner.result.profit | number:2}}</td>
+                <td class="profit" ng-class="{green: runner.result.isProfit, yellow: runner.result.isOk}">{{runner.result.lostProfit | number:2}} ({{runner.result.profit | number:2}})</td>
             </tr>
         </table>
     </div>
