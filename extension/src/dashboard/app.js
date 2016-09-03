@@ -24,7 +24,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             {name: 'Winner', short: 'Winner'},
             {name: 'William Hill', short: 'WH'},
             {name: '188Bet', short: 'b188'},
-            {name: 'Betstars', short: 'Betstars'}
+            {name: 'Betstars', short: 'Betstars'},
+            {name: '32Red Bet', short: 'r32'}
         ];
         $scope.isLogOn = false;
         bbStorage.get('bb-settings', function(settings) {
@@ -579,6 +580,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 $scope.extraPlaceEvent = {
                     eventId: event.id,
                     name: event.name,
+                    layCommission: 5,
                     runners: [],
                     summary: {},
                     loaded: false
