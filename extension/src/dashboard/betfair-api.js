@@ -1,6 +1,7 @@
-//var https = require('https'),
-    // This is my fixed Betfair AppID
-var BetfairAppID = 'Zn8PUTbCvmwDw1RX',
+// This is my fixed Betfair AppID
+var BetfairAppID = 'dZ3LrwN2G7G0fJrW', //delay
+    // 'H7iojQBrblMWNzVr', // live
+    // 'Zn8PUTbCvmwDw1RX', // old
     eventTypes = {
         football: '1',
         golf: '3',
@@ -9,9 +10,10 @@ var BetfairAppID = 'Zn8PUTbCvmwDw1RX',
     knownHorseMarketNames = ['Each Way', 'To Be Placed'],
     debug = false;
 
-// todo-timur:
 function debugLog() {
-
+    if (debug) {
+        console.log.apply(this, arguments);
+    }
 }
 
 function param(object) {
@@ -35,9 +37,7 @@ function param(object) {
  * @returns {*}
  */
 function request(options, data, done) {
-    if (debug) {
-        console.log('AJAX send', options, data);
-    }
+    debugLog('AJAX send', options, data);
     var xhr = new XMLHttpRequest();
     var doneFunc = function(obj) {
         if (done) {
@@ -53,9 +53,7 @@ function request(options, data, done) {
     }
     xhr.onload = function() {
         if (xhr.status === 200) {
-            if (debug) {
-                console.log('AJAX success', xhr.responseText);
-            }
+            debugLog('AJAX success', xhr.responseText);
             try {
                 var json = JSON.parse(xhr.responseText);
                 doneFunc(json);
@@ -63,9 +61,7 @@ function request(options, data, done) {
                 doneFunc({error: e});
             }
         } else {
-            if (debug) {
-                console.log('AJAX failed', xhr.status);
-            }
+            debugLog('AJAX failed', xhr.status);
             doneFunc({error: xhr.status});
         }
     };
@@ -104,9 +100,7 @@ function post(cmd, data, done) {
 
 function callApi(sessionToken, cmd, data, done) {
     var options = createOptions('api.betfair.com/exchange/betting/rest/v1.0/' + cmd + '/', sessionToken);
-    if (debug) {
-        console.log('betfair.callApi()', options.url, sessionToken, data);
-    }
+    debugLog('betfair.callApi()', options.url, sessionToken, data);
     request(options, data, done);
 }
 
@@ -205,21 +199,32 @@ function createBetfair() {
     }
 
 
-    var betfair = {};
+    var betfair = {},
+        login, password;
 
     betfair.loggedOn = false;
 
+    betfair.setAccount = function(l, p) {
+        login = l;
+        password = p;
+    };
+
     betfair.login = function(done) {
+        if (!(login && password)) {
+            console.log('Betfair login: call setAccount(login, password) to init credentials first');
+            return;
+        }
+
         var loginData = {
-            username: 'timurn',
-            password: 'pkLcHiBjbZ4HFslGyW4z'
+            username: login,
+            password: password
         };
         var loginDone = function(data) {
             if (data.status === 'SUCCESS') {
                 betfair.loggedOn = true;
                 betfair.sessionToken = data.token;
             }
-            console.log('Betfair login done, sessionToken: ', betfair.sessionToken);
+            console.log('Betfair login done, sessionToken: ', betfair.sessionToken, data);
             done(data);
         };
 

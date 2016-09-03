@@ -5,11 +5,11 @@ table table {
     border: none;
 }
 td, th {
-    border: 1px solid transparent;
+    border: 1px solid silver;
     padding: 1px 2px;
 }
 .events {
-    border-collapse: separate;
+    border-collapse: collapse;
 }
 .runner-list td {
     border-bottom: 1px solid grey;
@@ -101,13 +101,14 @@ label, input[type=checkbox] {
 }
 .events-container, .markets-container {
     float: left;
+    margin-bottom: 10px;
 }
 .markets-container {
     margin-left: 20px;
 }
 .events td {
-    /*opacity: 0.7;*/
     text-align: center;
+    padding: 0 5px;
 }
 .events td.selected {
     /*outline: 2px solid gray;*/
@@ -137,7 +138,7 @@ table .fa.fa-lock {
     margin-top: 5px;
     margin-left: 5px;
 }
-input[type=text], input[type=number] {
+input[type=text], input[type=number], input[type=password] {
     border-radius: 3px;
     border: 1px solid #c0c0c0;
     padding: 0 2px;
@@ -158,11 +159,11 @@ input[type=text], input[type=number] {
     border-bottom: 1px solid red;
 }
 .bookie-header {
-    min-width: 40px;
+    min-width: 30px;
     text-align: center;
 }
 .bookie {
-    background-image: url('./allbookie_90.gif');
+    background-image: url('allbookie_90.gif');
     background-repeat: no-repeat;
     width: 17px;
     height: 54px;
@@ -203,6 +204,9 @@ input[type=text], input[type=number] {
 }
 .bookie.b188 {
     background-position: -374px 0;
+}
+.bookie.Betstars {
+    background-position: -680px 0;
 }
 .betfair-ids {
     width: 500px;
@@ -276,4 +280,12 @@ input[type=number]::-webkit-outer-spin-button {
 .profit, .bold {
     font-weight: bold;
     color: black;
+}
+.runner-list .tn-header .badge {
+    color: white;
+}
+#copied-text {
+    width: 10px;
+    height: 10px;
+    opacity: 0;
 }

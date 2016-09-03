@@ -26,7 +26,10 @@ function test() {
 		if (!response) {
 			response = 'Can not get selection';
 		}
-		chrome.tts.speak(response);
+		chrome.tts.getVoices(function(voices) {
+			console.log(voices);
+		});
+		chrome.tts.speak(response, {lang: 'en-GB', gender: 'female', rate: 0.8});
 	});
 }
 

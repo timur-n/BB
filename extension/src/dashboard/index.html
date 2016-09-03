@@ -18,10 +18,10 @@
 <div id="main-div" ng-controller="MainCtrl">
     <div class="main-toolbar">
         <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
-        <label for="ep-comm">Comm %</label>
-        <input type="number" id="ep-comm" class="number-std" ng-model="extraPlaceEvent.layCommission">
         <input type="checkbox" id="isLogOn" ng-model="isLogOn">
         <label for="isLogOn">Log</label>
+        <input type="text" ng-model="betfairLogin" size="8">
+        <input type="password" ng-model="betfairPassword" size="8">
     </div>
     <div class="events-container">
         <table class="events">
@@ -77,14 +77,16 @@
         </div>
     </div>
     <div class="extra-place-runners" ng-show="extraPlaceEvent">
-        <a ng-click="selectExtraPlaceEvent(false)">Close</a>
         <span class="bold">{{extraPlaceEvent && extraPlaceEvent.name}} </span>
-        <span>Runners: {{extraPlaceEvent && extraPlaceEvent.runners.length}}</span>
+        <label for="ep-comm">Comm %</label>
+        <input type="number" id="ep-comm" class="number-std" ng-model="extraPlaceEvent.layCommission">
         <label for="ep-filter">Min loss</label>
         <input id="ep-filter" type="number" class="number-std" ng-model="extraPlaceEvent.filter">
+        <textarea id="copied-text" type="text" ng-model="copiedText" size="10"></textarea>
+        <a ng-click="selectExtraPlaceEvent(false)">Close</a>
         <table class="runner-list">
-            <tr>
-                <th rowspan="2">Name</th>
+            <tr class="tn-header">
+                <th rowspan="2">Runners <span class="badge">{{extraPlaceEvent && extraPlaceEvent.runners.length}}</span></th>
                 <th rowspan="2" ng-repeat="knownBookie in knownBookies" class="bookie-header">
                     <div class="bookie {{knownBookie.short}}" ng-click="toggleExtraPlaceBookie(knownBookie)"></div>
                 </th>
@@ -161,7 +163,7 @@
                 <td class="liability">{{runner.result.place.liability | number:2}}</td>
                 <td>{{runner.result.place.lostProfit | number:2}}</td>
                 <td class="liability">{{runner.result.liability | number:2}}</td>
-                <td class="profit" ng-class="{green: runner.result.isProfit, yellow: runner.result.isOk}">{{runner.result.lostProfit | number:2}} ({{runner.result.profit | number:2}})</td>
+                <td class="profit" ng-click="runner.toggleRunner()" ng-class="{green: runner.result.isProfit, yellow: runner.result.isOk}">{{runner.result.lostProfit | number:2}} ({{runner.result.profit | number:2}})</td>
             </tr>
         </table>
     </div>

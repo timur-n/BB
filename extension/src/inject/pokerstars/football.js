@@ -1,18 +1,21 @@
 /**
- * skybet data
+ * pokerstars data
  */
 
 if (!window.__karma__) {
     if (window.bb_getScraperName) {
-        throw new Error('bb_getScraperName already registered (Pokerstars football)');
+        throw new Error('bb_getScraperName already registered (Pokerstars all)');
     }
-    window.bb_getScraperName = 'bb_getPokerstarsFootball';
+    window.bb_getScraperName = 'bb_getPokerstarsAll';
 }
 
-window.bb_getPokerstarsFootball = function() {
+alert('Pokerstars football!');
+
+window.bb_getPokerstarsAll = function() {
     var result = {
-            bookies: [{name: 'Pokerstars', markets: []}],
+            bookies: [{name: 'Betstars', markets: []}],
             debug: {
+                href: document.location.href,
                 markets: []
             }
         },
@@ -20,22 +23,11 @@ window.bb_getPokerstarsFootball = function() {
         $root = $('#content'),
         $panels = $root.find('.mktgrp.mktgrp1'),
         $subtitle = $root.find('.content-head .sub-head'),
-        time = getTextNoChildren($subtitle),
+        time = bb.getTextNoChildren($subtitle),
         home = '',
         away = '';
 
-    if (!$panels.length) {
-        $panels = $root.find('div [data-class-id]');
-    }
-
-    function getText($item) {
-        return $item.text().trim().replace(/\s*\n\s*/g, ' ');
-    }
-
-    function getTextNoChildren($item) {
-        return getText($item.clone().children().remove().end());
-    }
-
+/*
     function renameMarket(name) {
         return name
             .replace(/Full Time Result/gi, 'Match Odds')
@@ -81,35 +73,23 @@ window.bb_getPokerstarsFootball = function() {
                     var $runner = $(this),
                         runner = {
                             name: renameRunner(marketName, getText($runner.find('span.oc-desc')), home, away),
-                            price: getText($runner.find('b.odds'))
+                            price: bb.getText($runner.find('b.odds'))
                         };
                     if (runner.name) {
                         market.runners.push(runner);
                     }
                 });
-/*
-                if (/Correct Score/gi.test(market.name)) {
-                    market.runners.sort(function(a, b) {
-                        return a > b;
-                    });
-                }
-*/
                 markets.push(market);
             }
         });
     }
 
-/*
-    var $boost = $('.priceboost-mktgrp');
-    result.boostRunner = getRunnerName($boost.find('.oc-runner h4'));
-    result.boostPrice = $boost.find('.oc-priceboost .odds').text().trim();
-*/
     result.event = {
-        name: getText($root.find('.content-head h1')),
+        name: bb.getText($root.find('.content-head h1')),
         time: time.replace(/([A-Za-z0-9 ]*)\|([A-Za-z0-9 ]*)\| ()/gi, '$3')
     };
     if (!result.event.name) {
-        result.event.name = getText($('.breadcrumb-live span.current'));
+        result.event.name = bb.getText($('.breadcrumb-live span.current'));
         result.event.time = 'Live';
     }
 
@@ -130,6 +110,7 @@ window.bb_getPokerstarsFootball = function() {
         collectMarkets($panel, '.market2-3col');
         collectMarkets($panel, '.market3-2col');
     });
+*/
 
     return result;
 };

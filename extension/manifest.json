@@ -26,7 +26,7 @@
         "*://smarkets.com/*",
         "*://www.skybet.com/*",
         "*://www.betvictor.com/sports/en/football/*",
-        "*://betstars.uk/#/soccer/*",
+        "*://www.betstars.uk/*",
         "*://sports.williamhill.com/bet/*",
         "*://www.oddschecker.com/*"
       ],
@@ -45,7 +45,7 @@
       "js": ["src/inject/smarkets/football.js"]
     },
     {
-      "matches": ["*://www.betstars.uk/#/soccer/*"],
+      "matches": ["*://www.betstars.uk/*"],
       "js": ["src/inject/pokerstars/football.js"]
     },
     {
@@ -80,6 +80,7 @@
     "tabs",
     "tts",
     "storage",
+    "unlimitedStorage",
     "https://*.betfair.com/*"
   ]
 }

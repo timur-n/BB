@@ -4,8 +4,8 @@ angular.module('BBBetfair', [])
     }]);
 
 angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
-    .controller('MainCtrl', ['$scope', '$log', '$interval', 'bbStorage', 'bbUtils', 'bbProcessors', '$http',
-    function($scope, $log, $interval, bbStorage, bbUtils, bbProcessors, $http) {
+    .controller('MainCtrl', ['$scope', '$log', '$interval', 'bbStorage', 'bbUtils', 'bbProcessors', '$http', '$timeout', '$document',
+    function($scope, $log, $interval, bbStorage, bbUtils, bbProcessors, $http, $timeout, $document) {
         $scope.data = 0;
         $scope.events = [];
         $scope.betfair = createBetfair();
@@ -23,9 +23,15 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             //{name: 'Boylesports', short: 'Boyle'},
             {name: 'Winner', short: 'Winner'},
             {name: 'William Hill', short: 'WH'},
-            {name: '188Bet', short: 'b188'}
+            {name: '188Bet', short: 'b188'},
+            {name: 'Betstars', short: 'Betstars'}
         ];
         $scope.isLogOn = false;
+        bbStorage.get('bb-settings', function(settings) {
+            if (settings) {
+                $scope.betfairLogin = settings.login;
+            }
+        });
 
         var dataTypes = {
             back: 'back',
@@ -117,7 +123,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         ExtraPlaceRunner.prototype.isLocked = function(name) {
             return this.locks && this.locks[name];
         };
-        ExtraPlaceRunner.prototype.toggle = function(bookie) {
+        ExtraPlaceRunner.prototype.toggle = function(bookie, unlock) {
             var selectedBookie;
             this.bookies.forEach(function(b) {
                 if (b.isSelected) {
@@ -131,13 +137,39 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 }
                 bookie.isSelected = true;
             }
-            if (bookie.isSelected && !this.isLocked('winBack')) {
+            if (bookie.isSelected && !this.isLocked('winBack') && !unlock) {
                 this.toggleLock('winBack')
             }
             this.isBacked = bookie.isSelected;
         };
         ExtraPlaceRunner.prototype.toggleRunner = function() {
             this.isSelected = !this.isSelected;
+            this.copyData();
+        };
+        ExtraPlaceRunner.prototype.copyData = function() {
+            var s1 = [
+                    $scope.extraPlaceEvent.name,
+                    this.name,
+                    this.backStake,
+                    this.backOdds,
+                    this.layOdds,
+                    this.result.win.layStake,
+                    $scope.extraPlaceEvent.layCommission
+                ],
+                s2 = [
+                    $scope.extraPlaceEvent.name,
+                    this.name,
+                    this.backStake,
+                    this.place.backOdds,
+                    this.place.layOdds,
+                    this.result.place.layStake,
+                    $scope.extraPlaceEvent.layCommission
+                ];
+            $scope.copiedText = s1.join('\t') + '\n' + s2.join('\t');
+            $timeout(function() {
+                $('#copied-text').focus().select();
+                document.execCommand('copy');
+            });
         };
 
         function log() {
@@ -152,6 +184,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
 
         // Poll betfair data for events
         $interval(function() {
+            $scope.betfair.setAccount($scope.betfairLogin, $scope.betfairPassword);
             $scope.events.forEach(function(event) {
                 if (event.betfair) {
                     var marketIds = bbUtils.getMarketIds(event.betfair);
@@ -470,6 +503,9 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     return a.time > b.time ? 1 : a.time < b.time ? -1 : 0;
                 });
                 bbStorage.set(event.id, event);
+                bbStorage.set('bb-settings', {
+                    login: $scope.betfairLogin
+                });
 
                 if ($scope.extraPlaceEvent && $scope.extraPlaceEvent.eventId === event.id) {
                     updateExtraPlaceBookies(event);
@@ -539,6 +575,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
 
         $scope.selectExtraPlaceEvent = function(event) {
             if (event) {
+                $scope.selectedBookie = false;
                 $scope.extraPlaceEvent = {
                     eventId: event.id,
                     name: event.name,
@@ -563,7 +600,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                         if (savedBookie.isSelected) {
                                             var bookie = bbUtils.objByStr(runner.bookies, 'name', savedBookie.name);
                                             if (bookie) {
-                                                runner.toggle(bookie);
+                                                runner.toggle(bookie, true);
                                             }
                                         }
                                     });
