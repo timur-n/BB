@@ -169,6 +169,9 @@ input[type=text], input[type=number], input[type=password] {
     height: 54px;
     display: inline-block;
 }
+.greyed .bookie {
+    opacity: 0.1;
+}
 .bookie.B365 {
     background-position: -323px 0;
 }

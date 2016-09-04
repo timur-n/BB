@@ -124,6 +124,13 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         ExtraPlaceRunner.prototype.isLocked = function(name) {
             return this.locks && this.locks[name];
         };
+        ExtraPlaceRunner.prototype.getSelectedBookie = function() {
+            this.bookies.forEach(function(b) {
+                if (b.isSelected) {
+                    return b;
+                }
+            });
+        };
         ExtraPlaceRunner.prototype.toggle = function(bookie, unlock) {
             var selectedBookie;
             this.bookies.forEach(function(b) {
@@ -148,22 +155,34 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             this.copyData();
         };
         ExtraPlaceRunner.prototype.copyData = function() {
-            var s1 = [
+            var date = new Date(),
+                day = date.getDate(),
+                month = date.getMonth() + 1,
+                year = date.getFullYear(),
+                dateStr = day + '/' + month + '/' + year + ' ' + $scope.extraPlaceEvent.time,
+                bookie = this.getSelectedBookie() || '?',
+                s1 = [
+                    bookie,
+                    'Qualifier',
+                    dateStr,
                     $scope.extraPlaceEvent.name,
                     this.name,
                     this.backStake,
                     this.backOdds,
-                    this.layOdds,
-                    this.result.win.layStake,
+                    this.layOdds || 0,
+                    this.result.win.layStake || 0,
                     $scope.extraPlaceEvent.layCommission
                 ],
                 s2 = [
+                    bookie,
+                    'Qualifier',
+                    dateStr,
                     $scope.extraPlaceEvent.name,
                     this.name,
                     this.backStake,
                     this.place.backOdds,
-                    this.place.layOdds,
-                    this.result.place.layStake,
+                    this.place.layOdds || 0,
+                    this.result.place.layStake || 0,
                     $scope.extraPlaceEvent.layCommission
                 ];
             $scope.copiedText = s1.join('\t') + '\n' + s2.join('\t');
@@ -463,7 +482,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 });
                 event = {
                     id: eventId,
-                    name: name,
+                    name: tabData.data && tabData.data.event && tabData.data.event.name || name,
                     time: tabData.data && tabData.data.event && tabData.data.event.time,
                     data: tabData.data || {},
                     bookies: bookies,
@@ -497,7 +516,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
 
             if (event) {
                 event.url = tabData.url;
-                event.name = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);
+                event.title = event.name + ' ' + event.time;
                 normalizeData(tabData);
                 updateBookies(event, tabData);
                 $scope.events.sort(function(a, b) {
@@ -580,6 +599,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 $scope.extraPlaceEvent = {
                     eventId: event.id,
                     name: event.name,
+                    time: event.time,
+                    title: event.title,
                     layCommission: 5,
                     runners: [],
                     summary: {},
@@ -630,6 +651,12 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 } else {
                     excludedBookies.push(knownBookie.name);
                 }
+            }
+        };
+
+        $scope.isExtraPlaceBookieOn = function(knownBookie) {
+            if ($scope.extraPlaceEvent && $scope.extraPlaceEvent.excludedBookies) {
+                return $scope.extraPlaceEvent.excludedBookies.indexOf(knownBookie.name) < 0;
             }
         };
 

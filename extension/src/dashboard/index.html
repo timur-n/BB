@@ -36,7 +36,7 @@
             </thead>
             <tbody>
                 <tr ng-repeat="event in events track by $index">
-                    <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectExtraPlaceEvent(event)">{{event.name || event.url}}</a></td>
+                    <td class="event-name" ng-class="{selected: event.selected}"><a ng-click="selectExtraPlaceEvent(event)">{{event.title || event.url}}</a></td>
                     <td ng-repeat="bookie in event.bookies" ng-class="{selected: bookie.selected, green: bookie.summary.isProfit, yellow: bookie.summary.isOk, direct: bookie.isDirect}">
                         <a class="summary"
                            ng-click="selectBookie(event, bookie)">
@@ -77,7 +77,7 @@
         </div>
     </div>
     <div class="extra-place-runners" ng-show="extraPlaceEvent">
-        <span class="bold">{{extraPlaceEvent && extraPlaceEvent.name}} </span>
+        <span class="bold">{{extraPlaceEvent && extraPlaceEvent.title}} </span>
         <label for="ep-comm">Comm %</label>
         <input type="number" id="ep-comm" class="number-std" ng-model="extraPlaceEvent.layCommission">
         <label for="ep-filter">Min loss</label>
@@ -87,7 +87,7 @@
         <table class="runner-list">
             <tr class="tn-header">
                 <th rowspan="2">Runners <span class="badge">{{extraPlaceEvent && extraPlaceEvent.runners.length}}</span></th>
-                <th rowspan="2" ng-repeat="knownBookie in knownBookies" class="bookie-header">
+                <th rowspan="2" ng-repeat="knownBookie in knownBookies" class="bookie-header" ng-class="{greyed: !isExtraPlaceBookieOn(knownBookie)}">
                     <div class="bookie {{knownBookie.short}}" ng-click="toggleExtraPlaceBookie(knownBookie)"></div>
                 </th>
                 <th rowspan="2">Stake</th>
