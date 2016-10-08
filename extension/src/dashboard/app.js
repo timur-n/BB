@@ -11,6 +11,9 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.betfair = createBetfair();
         $scope.betfairPollInterval = 5000;
         $scope.extraPlaceEvent = false;
+        $scope.newBets = []; // All new good bets
+        $scope.knownNewBets = []; // Acknowledged good bets
+        $scope.newBetsAcknowledged = true;
         $scope.knownBookies = [
             {name: 'Bet 365', short: 'B365'},
             //{name: 'Sky Bet', short: 'Sky'},
@@ -204,16 +207,6 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
 
         // Poll betfair data for events
         $interval(function() {
-            //$scope.betfair.setAccount($scope.betfairLogin, $scope.betfairPassword);
-            //$scope.events.forEach(function(event) {
-            //    if (event.betfair) {
-            //        var marketIds = bbUtils.getMarketIds(event.betfair);
-            //        $scope.betfair.getMarketPrices(marketIds, function(data) {
-            //            data.betfair = event.betfair;
-            //            $scope.updateBetfairData(data);
-            //        })
-            //    }
-            //});
             $scope.events.forEach(function(event) {
                 $scope.updateBetfairStatus(event);
             });
@@ -268,6 +261,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             });
             bookie.bestResults = bestResults;
             var bestOverall;
+            // Find best result across all processors
             bookie.processors.forEach(function(processor) {
                 var result = bestResults[processor.id];
                 if (result) {
@@ -283,6 +277,38 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 isOk: isOk && !isProfit
             };
         }
+
+        $scope.checkNewBets = function() {
+            if ($scope.extraPlaceEvent) {
+                $scope.newBets = [];
+                $scope.newBetsAcknowledged = true;
+                $scope.extraPlaceEvent.runners.forEach(function(runner) {
+                    var isGood = runner.result.isOk || runner.result.isProfit;
+                    if (isGood) {
+                        $scope.newBets[runner.name] = true;
+                    } else {
+                        delete $scope.knownNewBets[runner.name];
+                    }
+                });
+                var runnerName;
+                for(runnerName in $scope.newBets) {
+                    if ($scope.newBets.hasOwnProperty(runnerName) && !$scope.knownNewBets[runnerName]) {
+                        $scope.newBetsAcknowledged = false;
+                    }
+                }
+            }
+        };
+        $scope.ackNewBets = function() {
+            if ($scope.extraPlaceEvent) {
+                var runnerName;
+                for(runnerName in $scope.newBets) {
+                    if ($scope.newBets.hasOwnProperty(runnerName)) {
+                        $scope.knownNewBets[runnerName] = true;
+                    }
+                }
+                $scope.newBetsAcknowledged = true;
+            }
+        };
 
         $scope.updateRunner = function(runner, dataType, price, size) {
             if (dataType === dataTypes.back) {
@@ -399,6 +425,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     });
                 }
 
+                $scope.checkNewBets();
+
                 if ($scope.extraPlaceEvent.loaded) {
                     bbStorage.set('EP-' + $scope.extraPlaceEvent.eventId, $scope.extraPlaceEvent);
                 }
@@ -420,6 +448,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         }
                     })
                 }
+
+                $scope.checkNewBets();
             }
         }
 

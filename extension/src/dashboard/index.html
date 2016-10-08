@@ -20,8 +20,6 @@
         <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
         <input type="checkbox" id="isLogOn" ng-model="isLogOn">
         <label for="isLogOn">Log</label>
-        <input type="text" ng-model="betfairLogin" size="8">
-        <input type="password" ng-model="betfairPassword" size="8">
     </div>
     <div class="events-container">
         <table class="events">
@@ -84,6 +82,7 @@
         <input id="ep-filter" type="number" class="number-std" ng-model="extraPlaceEvent.filter">
         <textarea id="copied-text" type="text" ng-model="copiedText" size="10"></textarea>
         <a ng-click="selectExtraPlaceEvent(false)">Close</a>
+        <span class="new-good-bets" ng-show="!newBetsAcknowledged" ng-click="ackNewBets()">New good bets</span>
         <table class="runner-list">
             <tr class="tn-header">
                 <th rowspan="2">Runners <span class="badge">{{extraPlaceEvent && extraPlaceEvent.runners.length}}</span></th>
