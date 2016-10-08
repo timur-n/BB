@@ -204,15 +204,18 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
 
         // Poll betfair data for events
         $interval(function() {
-            $scope.betfair.setAccount($scope.betfairLogin, $scope.betfairPassword);
+            //$scope.betfair.setAccount($scope.betfairLogin, $scope.betfairPassword);
+            //$scope.events.forEach(function(event) {
+            //    if (event.betfair) {
+            //        var marketIds = bbUtils.getMarketIds(event.betfair);
+            //        $scope.betfair.getMarketPrices(marketIds, function(data) {
+            //            data.betfair = event.betfair;
+            //            $scope.updateBetfairData(data);
+            //        })
+            //    }
+            //});
             $scope.events.forEach(function(event) {
-                if (event.betfair) {
-                    var marketIds = bbUtils.getMarketIds(event.betfair);
-                    $scope.betfair.getMarketPrices(marketIds, function(data) {
-                        data.betfair = event.betfair;
-                        $scope.updateBetfairData(data);
-                    })
-                }
+                $scope.updateBetfairStatus(event);
             });
         }, $scope.betfairPollInterval);
 
@@ -557,6 +560,10 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             return now.getTime() - (date ? date.getTime() : 0);
         }
 
+        $scope.updateBetfairStatus = function(event) {
+            event.betfairOk = getInterval(event.betfairLastUpdate) < $scope.betfairPollInterval * 2;
+        };
+
         $scope.updateBetfairData = function(betfairData) {
             log('updateBetfairData()', betfairData);
             var event = bbUtils.objByStr($scope.events, 'betfair', betfairData.betfair);
@@ -566,7 +573,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
             if (event) {
                 event.betfairCount = bbUtils.getMarketCount(event.betfair);
-                event.betfairOk = getInterval(event.betfairLastUpdate) < $scope.betfairPollInterval * 2;
+                $scope.updateBetfairStatus(event);
                 event.betfairLastUpdate = new Date();
                 event.bookies.forEach(function(bookie) {
                     $scope.updateBookiePrices(bookie, betfairData, dataTypes.betfair);
