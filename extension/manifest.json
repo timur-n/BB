@@ -24,10 +24,11 @@
     {
       "matches": [
         "*://smarkets.com/*",
-        "*://www.skybet.com/*",
+        "*://www.betfair.com/exchange/plus/*",
+//        "*://www.skybet.com/*",
         "*://www.betvictor.com/sports/en/football/*",
         "*://www.betstars.uk/*",
-        "*://sports.williamhill.com/bet/*",
+//        "*://sports.williamhill.com/bet/*",
         "*://www.oddschecker.com/*"
       ],
       "js": [
@@ -45,25 +46,29 @@
       "js": ["src/inject/smarkets/football.js"]
     },
     {
-      "matches": ["*://www.betstars.uk/*"],
-      "js": ["src/inject/pokerstars/football.js"]
+      "matches": ["https://www.betfair.com/exchange/plus/*"],
+      "js": ["src/inject/betfair/exchange.js"]
     },
-    {
-      "matches": ["*://www.skybet.com/horse-racing/*"],
-      "js": ["src/inject/skybet/horse.js"]
-    },
-    {
-      "matches": ["*://www.skybet.com/football/*"],
-      "js": ["src/inject/skybet/football.js"]
-    },
-    {
-      "matches": ["*://sports.williamhill.com/bet/*"],
-      "js": ["src/inject/willhill/willhill.js"]
-    },
-    {
-      "matches": ["*://www.betvictor.com/sports/en/football/*"],
-      "js": ["src/inject/betvictor/football.js"]
-    },
+//    {
+//      "matches": ["*://www.betstars.uk/*"],
+//      "js": ["src/inject/pokerstars/football.js"]
+//    },
+//    {
+//      "matches": ["*://www.skybet.com/horse-racing/*"],
+//      "js": ["src/inject/skybet/horse.js"]
+//    },
+//    {
+//      "matches": ["*://www.skybet.com/football/*"],
+//      "js": ["src/inject/skybet/football.js"]
+//    },
+//    {
+//      "matches": ["*://sports.williamhill.com/bet/*"],
+//      "js": ["src/inject/willhill/willhill.js"]
+//    },
+//    {
+//      "matches": ["*://www.betvictor.com/sports/en/football/*"],
+//      "js": ["src/inject/betvictor/football.js"]
+//    },
     {
       "matches": ["*://www.oddschecker.com/football/*"],
       "js": ["src/inject/oddschecker/football.js"]

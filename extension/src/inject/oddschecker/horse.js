@@ -76,5 +76,6 @@ window.bb_getOddschekerHorse = function(result) {
     });
 
     result.bookies = bookies;
+    result.autoReload = 5 * 60 * 1000; // 5 min
     return result;
 };

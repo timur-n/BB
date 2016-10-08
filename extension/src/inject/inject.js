@@ -1,6 +1,6 @@
 var counter = 0;
 var polling = true;
-var pollInterval = 2000;
+var pollInterval = 2000; // 2s
 var poller;
 
 function readData() {
@@ -13,6 +13,11 @@ function readData() {
 		} else {
 			var scraperName = window.bb_getScraperName;
 			data = window[scraperName](data);
+			if (data && data.autoReload) {
+				setTimeout(function() {
+					window.location.reload();
+				}, data.autoReload);
+			}
 		}
 	} catch(e) {
 		data = {
@@ -42,7 +47,7 @@ var readyStateCheckInterval = setInterval(function () {
 		chrome.runtime.sendMessage({polling: polling});
 		updatePolling();
 	}
-}, 10);
+}, 100);
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	console.log('Message received', request);

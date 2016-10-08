@@ -9,7 +9,7 @@ if (!window.__karma__) {
     window.bb_getScraperName = 'bb_getPokerstarsAll';
 }
 
-alert('Pokerstars football!');
+//alert('Pokerstars football!');
 
 window.bb_getPokerstarsAll = function() {
     var result = {

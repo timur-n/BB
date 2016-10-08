@@ -14,12 +14,16 @@ module.exports = function(config) {
             'extension/src/dashboard/processors.js',
             'extension/src/dashboard/app.js',
             'extension/src/dashboard/betfair-api.js',
-            'test/angular-mocks.js',
             'extension/src/inject/oddschecker/horse.js',
             'extension/src/inject/willhill/willhill.js',
             'extension/src/inject/betvictor/football.js',
+            'extension/src/inject/betfair/exchange.js',
             'extension/src/inject/inject-lib.js',
             'extension/src/inject/jquery-2.1.1.min.js',
+            'test/angular-mocks.js',
+            'test/jasmine-jquery.js',
+
+            {pattern: 'test/html/*.html', watched: true, served: true, included: false},
 
             'test/app-spec.js',
             'test/scrapers-spec.js'

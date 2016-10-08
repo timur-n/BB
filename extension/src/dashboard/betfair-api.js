@@ -138,6 +138,11 @@ function matchMarketsAndPrices(markets, prices) {
                 .replace(/The Draw/, 'Draw')
                 .replace(/C Palace/, 'Crystal Palace');
         }
+        if (marketInfo.eventType && marketInfo.eventType.id === eventTypes.horseRaces) {
+            newName = newName
+                .replace(/[0-9]/g, '')
+                .trim();
+        }
         return newName;
     }
 

@@ -13,7 +13,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.extraPlaceEvent = false;
         $scope.knownBookies = [
             {name: 'Bet 365', short: 'B365'},
-            {name: 'Sky Bet', short: 'Sky'},
+            //{name: 'Sky Bet', short: 'Sky'},
             //{name: 'Ladbrokes', short: 'Lads'},
             {name: 'Betfair Sportsbook', short: 'BFSB'},
             {name: 'Betfred', short: 'Bfr'},
@@ -296,18 +296,20 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         };
 
         $scope.updateBookiePrices = function(oldBookie, newData, dataType) {
-            // Clear all prices first
-            oldBookie.markets = oldBookie.markets || [];
-            oldBookie.markets.forEach(function(item) {
-                item.runners.forEach(function(runner) {
-                    $scope.updateRunner(runner, dataType, NaN);
+            // Clear all prices first, but only for back data
+            if (dataType === dataTypes.back) {
+                oldBookie.markets = oldBookie.markets || [];
+                oldBookie.markets.forEach(function (item) {
+                    item.runners.forEach(function (runner) {
+                        $scope.updateRunner(runner, dataType, NaN);
+                    });
                 });
-            });
+            }
             // Now match all markets/runners and update prices
             if (newData.markets) {
                 newData.markets.forEach(function(newMkt) {
-                    var oldMkt = bbUtils.objByStr(oldBookie.markets, 'name', newMkt.name),
-                        isPlaceLay = /PLACE/gi.test(newMkt.name) && dataType !== dataTypes.back;
+                    var oldMkt = bbUtils.objByStr(oldBookie.markets, 'name', newMkt.name);
+                    var isPlaceLay = /PLACE/gi.test(newMkt.name) && dataType !== dataTypes.back;
                     if (!oldMkt && isPlaceLay) {
                         oldMkt = bbUtils.objByStr(oldBookie.markets, 'name', 'WIN');
                     }
@@ -458,12 +460,24 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
         };
 
+        $scope.getEventId = function(data) {
+            return data && data.event && (data.event.name + ' ' + data.event.time);
+        };
+
+        $scope.isBetfairData = function(data) {
+            return data && data.source === 'betfair-exchange';
+        };
+
         $scope.updateData = function(tabData) {
             log('updateData()', tabData);
-            var eventId = tabData.data && tabData.data.event && (tabData.data.event.name + ' ' + tabData.data.event.time);
+            if ($scope.isBetfairData(tabData.data)) {
+                return $scope.updateBetfairData(tabData.data);
+            }
+
+            var eventId = $scope.getEventId(tabData.data);
             var event = bbUtils.objByValue($scope.events, 'id', eventId);
             if (!event && eventId) {
-                var name = 'New event';
+                var name = 'Unknown';
                 var bookies = $scope.knownBookies.map(function(knownBookie) {
                     return {
                         name: knownBookie.name,
@@ -510,7 +524,9 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         }
                     }
                 });
-                $scope.events.push(event);
+                if (event.name !== 'Unknown') {
+                    $scope.events.push(event);
+                }
                 //$log.debug('Event added', event);
             }
 
@@ -544,6 +560,10 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.updateBetfairData = function(betfairData) {
             log('updateBetfairData()', betfairData);
             var event = bbUtils.objByStr($scope.events, 'betfair', betfairData.betfair);
+            if (!event && $scope.isBetfairData(betfairData)) {
+                var eventId = $scope.getEventId(betfairData);
+                event = bbUtils.objByStr($scope.events, 'id', eventId);
+            }
             if (event) {
                 event.betfairCount = bbUtils.getMarketCount(event.betfair);
                 event.betfairOk = getInterval(event.betfairLastUpdate) < $scope.betfairPollInterval * 2;
@@ -657,6 +677,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.isExtraPlaceBookieOn = function(knownBookie) {
             if ($scope.extraPlaceEvent && $scope.extraPlaceEvent.excludedBookies) {
                 return $scope.extraPlaceEvent.excludedBookies.indexOf(knownBookie.name) < 0;
+            } else {
+                return true;
             }
         };
 
