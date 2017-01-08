@@ -37,6 +37,9 @@ angular.module('BBUtils', [])
             } else {
                 newPrice = (1.0 * price);
             }
+            if (newPrice === 0) {
+                newPrice = NaN;
+            }
             return Math.round(newPrice * 100) / 100;
         }
 

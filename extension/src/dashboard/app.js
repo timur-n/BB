@@ -20,6 +20,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             //{name: 'Ladbrokes', short: 'Lads'},
             {name: 'Betfair Sportsbook', short: 'BFSB'},
             {name: 'Betfred', short: 'Bfr'},
+            {name: 'Totesport', short: 'Tote'},
             {name: 'Paddy Power', short: 'Paddy'},
             {name: 'Bet Victor', short: 'BVic'},
             {name: 'Coral', short: 'Coral'},
@@ -28,7 +29,8 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             {name: 'William Hill', short: 'WH'},
             {name: '188Bet', short: 'b188'},
             {name: 'Betstars', short: 'Betstars'},
-            {name: '32Red Bet', short: 'r32'}
+            {name: '32Red Bet', short: 'r32'},
+            {name: 'Betway', short: 'bw'}
         ];
         $scope.isLogOn = false;
         bbStorage.get('bb-settings', function(settings) {
@@ -395,9 +397,13 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         function normalizeData(tabData) {
             tabData.data.bookies.forEach(function(bookie) {
                 bookie.markets.forEach(function(market) {
-                    market.runners.forEach(function(runner) {
-                        runner.name = runner.name.replace(/'/gi, '').replace('-', ' ');
-                    });
+                    // Replace ' - in names to make sure that e.g. D'Arc = DArc (some bookies strip ') etc.
+                    // This shouldn't apply to football Correct Score markets, as they should contain -, e.g. 3 - 0
+                    if (!/correct score/gi.test(market.name)) {
+                        market.runners.forEach(function(runner) {
+                            runner.name = runner.name.replace(/'/gi, '').replace('-', ' ');
+                        });
+                    }
                 });
             });
         }

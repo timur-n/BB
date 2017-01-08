@@ -12,6 +12,7 @@ window.bb_getOddschekerHorse = function(result) {
     var bookies = [],
         bookieHash = {};
 
+    var bb = window.bb; // defined in inject-lib.js
     var $ = jQuery,
         $bookies = $('.eventTable .eventTableHeader td aside a'),
         $rows = $('.eventTable .eventTableRow,.eventTable .eventTableRowNonRunner'),
@@ -53,7 +54,7 @@ window.bb_getOddschekerHorse = function(result) {
 
     $rows.each(function() {
         var $row = $(this);
-        var runnerName = $row.find('td a.selTxt').text().trim();
+        var runnerName = bb.getTextNoChildren($row.find('td a.selTxt'));
         //result.debug.runners.push(runnerName);
         var $cells = $row.find('td[data-odig]');
         //result.debug.cells = result.debug.cells || $cells.length;

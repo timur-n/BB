@@ -29,6 +29,9 @@ window.bb_getBetfairExchange = function(result) {
 
     var market = result.markets[0];
     market.name = bb.getText($('.generic-tabs-container .generic-tab-selected .market-tab-label'));
+    if (!market.name) {
+        market.name = bb.getText($('.marketview-header-bottom-container h2.market-type'));
+    }
 
     market.runners = [];
     var $runners = $('.mv-runner-list tr');
@@ -36,10 +39,13 @@ window.bb_getBetfairExchange = function(result) {
         var $runner = $(this),
             runner = {
                 name: bb.getTextNoChildren($runner.find('.runner-name')),
-                price: bb.getText($runner.find('.first-lay-cell .bet-button-price')),
+                price: bb.getText($runner.find('.first-lay-cell .bet-button-price')) || NaN,
                 size: bb.getText($runner.find('.first-lay-cell .bet-button-size')).replace('£', '')
             };
-        market.runners.push(runner);
+
+        if (runner.price !== "0") {
+            market.runners.push(runner);
+        }
     });
 
     return result;

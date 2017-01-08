@@ -15,12 +15,12 @@ angular.module('BBProcessors', [])
 
             // Lay stake, convert to fixed immediately to match betfair's numbers
             result.layStake = backReturn / (runner.layOdds - layCommissionPc);
-            result.layStake = result.layStake.toFixed(2);
+            result.layStake = result.layStake.toFixed(2) * 1.0;
             result.layProfit = result.layStake * (1 - layCommissionPc);
 
             // Lay risk (liability)
             result.liability = result.layStake * (runner.layOdds - 1);
-            result.liability = result.liability.toFixed(2);
+            result.liability = result.liability.toFixed(2) * 1.0;
 
             // Profit/Loss
             result.profit = backReturn - result.liability - backStake;
@@ -28,7 +28,7 @@ angular.module('BBProcessors', [])
 
             result.isProfit = result.lostProfit >= 0;
             result.isOk = !result.isProfit && (Math.abs(result.lostProfit) / backStake < 0.1);
-            result.enough = runner.size >= result.layStake;
+            result.enough = runner.size * 1.0 >= result.layStake;
 
             return result;
         }

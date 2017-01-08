@@ -17,7 +17,13 @@ window.bb_getOddschekerFootball = function(result) {
         $ewRow = $('.eventTable .eventTableFooter');
 
     // Make array of [Home, Away, MarketName]
-    var s = $('.page-description.module h1').text().replace(/([A-Z ]*)( V )([A-Z ]*)( - )([A-Z ]*)( BETTING ODDS)/gi, '$1/$3/$5').split('/');
+    var s = $('.page-description.module h1').text();
+    if (/winner betting odds/gi.test(s)) {
+        s = s.replace(/([A-Z ]*)( V )([A-Z ]*)(WINNER BETTING ODDS)/gi, '$1/$3/Winner');
+    } else {
+        s = s.replace(/([A-Z ]*)( V )([A-Z ]*)( - )([A-Z ]*)( BETTING ODDS)/gi, '$1/$3/$5');
+    }
+    s = s.split('/');
     var home = s[0],
         away = s[1],
         marketName = s[2];
