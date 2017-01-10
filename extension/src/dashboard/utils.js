@@ -2,6 +2,7 @@ angular.module('BBUtils', [])
     .factory('bbUtils', [function() {
 
         function indexByValue(array, key, value) {
+            array = array || [];
             for (var i = 0; i < array.length; i += 1) {
                 if (array[i][key] === value) {
                     return i;
@@ -11,16 +12,34 @@ angular.module('BBUtils', [])
         }
 
         function indexByStr(array, key, value) {
+            array = array || [];
             for (var i = 0; i < array.length; i += 1) {
                 var val = array[i][key],
                     all = val && value;
                 if (all) {
                     var str1 = val.toString().toLowerCase(),
                         str2 = value.toString().toLowerCase(),
-                        stringsMatch = str1 === str2
+                        stringsMatch = str1 === str2;
                     // todo-timur: this doesn't work well for Betfair Sportsbook bookie detection, if finds Betfair instead (exchange)
                     /*|| str1.indexOf(str2) >= 0
                      || str2.indexOf(str1) >= 0*/;
+                    if (stringsMatch) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+
+        function indexByStrAny(array, key, value) {
+            array = array || [];
+            for (var i = 0; i < array.length; i += 1) {
+                var val = array[i][key],
+                    all = val && value;
+                if (all) {
+                    var str1 = val.toString().toLowerCase(),
+                        str2 = value.toString().toLowerCase(),
+                        stringsMatch = str1 === str2 || str1.indexOf(str2) >= 0 || str2.indexOf(str1) >= 0;
                     if (stringsMatch) {
                         return i;
                     }
@@ -46,6 +65,7 @@ angular.module('BBUtils', [])
         return {
             indexByValue: indexByValue,
             indexByStr: indexByStr,
+            indexByStrAny: indexByStrAny,
             objByValue: function(array, key, value) {
                 var i = indexByValue(array, key, value);
                 if (i >= 0) {
@@ -54,6 +74,12 @@ angular.module('BBUtils', [])
             },
             objByStr: function(array, key, value) {
                 var i = indexByStr(array, key, value);
+                if (i >= 0) {
+                    return array[i];
+                }
+            },
+            objByStrAny: function(array, key, value) {
+                var i = indexByStrAny(array, key, value);
                 if (i >= 0) {
                     return array[i];
                 }

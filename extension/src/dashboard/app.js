@@ -525,6 +525,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         maxOdds: 180,
                         layCommission: 5,
                         backWinnerTerms: 0,
+                        markets: [],
                         processors: [
                             {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: false},
                             {name: 'Freebet', id: 'snr', func: bbProcessors.freeSnr, enabled: false},
@@ -602,7 +603,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
 
         $scope.updateBetfairData = function(betfairData) {
             log('updateBetfairData()', betfairData);
-            var event = bbUtils.objByStr($scope.events, 'betfair', betfairData.betfair);
+            var event = bbUtils.objByStrAny($scope.events, 'betfair', betfairData.betfair);
             if (!event && $scope.isBetfairData(betfairData)) {
                 var eventId = $scope.getEventId(betfairData);
                 event = bbUtils.objByStr($scope.events, 'id', eventId);
