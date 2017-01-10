@@ -12,25 +12,39 @@ if (!window.__karma__) {
 console.log('Betfair exchange');
 
 window.bb_getBetfairExchange = function(result) {
+
     var $ = jQuery;
     var bb = window.bb; // defined in inject-lib.js
+    var url = document.location.href;
 
     result = result || {};
     result.event = result.event || {};
     result.markets = result.markets || [{}];
-    result.debug = {
-        url: document.location.href
-    };
+    result.sport = 'Horse racing';
+    if (/\/golf\//gi.test(url)) {
+        result.sport = 'Golf';
+        result.isGolf = true;
+    } else if (/\/football\//gi.test(url)) {
+        result.sport = 'Football';
+        result.isFootball = true;
+    }
+    // result.debug = {
+    //     url: url
+    // };
     var venue = bb.getText($('.event-info .venue-name'));
     var regex = /([0-9:]*)([ A-z]*)([ (A-Z)]*)/gi;
     result.event.name = venue.replace(regex, '$2').trim();
     result.event.time = venue.replace(regex, '$1').trim();
     result.source = "betfair-exchange";
+    result.betfair = url;
 
     var market = result.markets[0];
     market.name = bb.getText($('.generic-tabs-container .generic-tab-selected .market-tab-label'));
     if (!market.name) {
         market.name = bb.getText($('.marketview-header-bottom-container h2.market-type'));
+    }
+    if (result.isGolf) {
+        market.name = market.name.replace(/winner/gi, 'Win').replace(/top 5 finish/gi, 'Place');
     }
 
     market.runners = [];
