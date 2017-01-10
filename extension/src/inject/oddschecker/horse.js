@@ -45,8 +45,8 @@ window.bb_getOddschekerHorse = function(result) {
             var bookie = bookieHash[bookieId];
             if (bookie) {
                 bookie.ew = {
-                    fraction: $ew.attr('data-ew-div').replace(/(1)\/([0-9])/gi, '$2'),
-                    places: $ew.attr('data-ew-places')
+                    fraction: $ew.attr('data-ew-div').replace(/(1)\/([0-9])/gi, '$2') || '100',
+                    places: $ew.attr('data-ew-places') || '1'
                 }
             }
         }
