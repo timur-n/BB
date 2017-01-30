@@ -28,9 +28,6 @@ window.bb_getBetfairExchange = function(result) {
         result.sport = 'Football';
         result.isFootball = true;
     }
-    // result.debug = {
-    //     url: url
-    // };
     var venue = bb.getText($('.event-info .venue-name'));
     var regex = /([0-9:]*)([ A-z]*)([ (A-Z)]*)/gi;
     result.event.name = venue.replace(regex, '$2').trim();
@@ -46,6 +43,9 @@ window.bb_getBetfairExchange = function(result) {
     if (result.isGolf) {
         market.name = market.name.replace(/winner/gi, 'Win').replace(/top 5 finish/gi, 'Place');
     }
+    if (result.isFootball) {
+        market.name = market.name.replace(/match odds/gi, 'Winner');
+    }
 
     market.runners = [];
     var $runners = $('.mv-runner-list tr');
@@ -56,6 +56,12 @@ window.bb_getBetfairExchange = function(result) {
                 price: bb.getText($runner.find('.first-lay-cell .bet-button-price')) || NaN,
                 size: bb.getText($runner.find('.first-lay-cell .bet-button-size')).replace('£', '')
             };
+
+        if (result.isFootball) {
+            runner.name = runner.name
+                .replace(/the draw/i, 'Draw')
+                .replace(/C Palace/i, 'Crystal Palace');
+        }
 
         if (runner.price !== "0") {
             market.runners.push(runner);

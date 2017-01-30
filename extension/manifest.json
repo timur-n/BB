@@ -25,8 +25,9 @@
       "matches": [
         "*://smarkets.com/*",
         "*://www.betfair.com/exchange/plus/*",
+        "*://www.betfred.com/sport*",
 //        "*://www.skybet.com/*",
-        "*://www.betvictor.com/sports/en/football/*",
+//        "*://www.betvictor.com/sports/en/football/*",
         "*://www.betstars.uk/*",
 //        "*://sports.williamhill.com/bet/*",
         "*://www.oddschecker.com/*"
@@ -48,6 +49,10 @@
     {
       "matches": ["https://www.betfair.com/exchange/plus/*"],
       "js": ["src/inject/betfair/exchange.js"]
+    },
+    {
+      "matches": ["*://www.betfred.com/sport*"],
+      "js": ["src/inject/betfred/horse.js"]
     },
 //    {
 //      "matches": ["*://www.betstars.uk/*"],

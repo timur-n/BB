@@ -47,7 +47,7 @@ angular.module('BBProcessors', [])
             var backReturnSNR = (runner.backOdds - 1) * backStake;
 
             result.layStake = backReturnSNR / (runner.layOdds - layCommissionPc);
-            result.layStake = result.layStake.toFixed(2);
+            result.layStake = result.layStake.toFixed(2) * 1.0;
 
             // Lay risk (liability)
             result.liability = result.layStake * (runner.layOdds - 1);
@@ -60,7 +60,7 @@ angular.module('BBProcessors', [])
 
             result.isProfit = false;
             result.isOk = false;
-            result.enough = runner.size >= result.layStake;
+            result.enough = runner.size * 1.0 >= result.layStake;
 
             return result;
         }
