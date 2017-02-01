@@ -326,6 +326,14 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             }
         };
 
+        // Try to find a runner by alternative name which may be added to bookie.customMatches
+        function matchCustom(runners, customMatches, name) {
+            var matchedName = customMatches && customMatches[name];
+            if (matchedName) {
+                return bbUtils.objByStr(runners, 'name', matchedName);
+            }
+        }
+
         $scope.updateBookiePrices = function(oldBookie, newData, dataType) {
             // Clear all prices first, but only for back data
             if (dataType === dataTypes.back) {
@@ -347,6 +355,10 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     if (oldMkt) {
                         newMkt.runners.forEach(function(newRunner) {
                             var oldRunner = bbUtils.objByStr(oldMkt.runners, 'name', newRunner.name);
+                            // If exact name not found, for lay runner try to find by alternative name if any
+                            if (!oldRunner && dataType !== dataTypes.back) {
+                                oldRunner = matchCustom(oldMkt.runners, oldBookie.customMatches, newRunner.name);
+                            }
                             if (oldRunner) {
                                 if (!isPlaceLay) {
                                     $scope.updateRunner(oldRunner, dataType, newRunner.price, newRunner.size);
@@ -526,6 +538,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                         layCommission: 5,
                         backWinnerTerms: 0,
                         markets: [],
+                        customMatches: {},
                         processors: [
                             {name: 'Qualifier', id: 'q', func: bbProcessors.qualifier, enabled: false},
                             {name: 'Freebet', id: 'snr', func: bbProcessors.freeSnr, enabled: false},
@@ -554,11 +567,13 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                     newBookie.minOdds = oldBookie.minOdds;
                                     newBookie.maxOdds = oldBookie.maxOdds;
                                     newBookie.marked = oldBookie.marked;
+                                    newBookie.customMatches = oldBookie.customMatches;
                                     for (var i = 0; i < newBookie.processors.length; i += 1) {
                                         if (i < oldBookie.processors.length) {
                                             newBookie.processors[i].enabled = oldBookie.processors[i].enabled;
                                         }
                                     }
+                                    // todo-timur: restore runners disabled state
                                 }
                             });
                         }
@@ -740,6 +755,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 }
                 $scope.selectRunner(false);
             }
+            clearNewCustomMatch();
         };
 
         $scope.selectMarket = function(market) {
@@ -792,4 +808,29 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     $log.debug('sendToCalc() error', data, status);
                 });
         };
+
+        $scope.addCustomMatch = function(bookie) {
+            var exchangeName = prompt('Enter exchange runner name', '');
+            if (exchangeName) {
+                bookie.customMatches = bookie.customMatches || {};
+                bookie.customMatches[exchangeName] = 'Enter bookie runner';
+            }
+        }
+
+        function clearNewCustomMatch() {
+            $scope.newCustomMatchKey = '';
+            $scope.newCustomMatchValue = '';
+        }
+
+        $scope.addCustomMatch2 = function(bookie) {
+            if ($scope.newCustomMatchKey && $scope.newCustomMatchValue) {
+                bookie.customMatches = bookie.customMatches || {};
+                bookie.customMatches[$scope.newCustomMatchKey] = $scope.newCustomMatchValue;
+                clearNewCustomMatch();
+            }
+        }
+
+        $scope.deleteCustomMatch = function(bookie, exchangeName) {
+            delete bookie.customMatches[exchangeName];
+        }
     }]);

@@ -16,7 +16,7 @@
 </head>
 <body ng-app="BBApp">
 <div id="main-div" ng-controller="MainCtrl">
-    <div class="main-toolbar">
+    <div class="main-toolbar bb-panel">
         <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
         <input type="checkbox" id="isLogOn" ng-model="isLogOn">
         <label for="isLogOn">Log</label>
@@ -62,6 +62,8 @@
             <input id="min-odds" type="number" ng-model="selectedBookie.minOdds" maxlength="3">
             <label for="max-odds">Max odds</label>
             <input id="max-odds" type="number" ng-model="selectedBookie.maxOdds" maxlength="3">
+            <label for="marked">Star</label>
+            <input id="marked" type="checkbox" ng-model="selectedBookie.marked">
             <ul class="bookie-processors">
                 <li ng-repeat="processor in selectedBookie.processors track by $index">
                     <label for="{{processor.id + $index}}">{{processor.name}}</label>
@@ -69,8 +71,28 @@
                 </li>
             </ul>
             <span class="ew-terms" ng-show="selectedBookie.ew">EW: 1/{{selectedBookie.ew.fraction}} ({{selectedBookie.ew.places}} places)</span>
-            <label for="marked">Star</label>
-            <input id="marked" type="checkbox" ng-model="selectedBookie.marked">
+            <div class="bb-panel">Custom matches:</div>
+            <table class="bookie-custom-matches">
+                <tr>
+                    <th>Name at exchange</th>
+                    <th>Name at bookie</th>
+                    <th></th>
+                </tr>
+                <tr ng-repeat="(key, value) in selectedBookie.customMatches">
+                    <td><span>{{key}}</span></td>
+                    <td><input type="text" ng-model="selectedBookie.customMatches[key]"></td>
+                    <td><button class="btn btn-xs" ng-click="deleteCustomMatch(selectedBookie, key)">Delete</button></td>
+                </tr>
+                <tr>
+                    <td><input type="text" ng-model="newCustomMatchKey" placeholder="Enter exchange name"></td>
+                    <td><input type="text" ng-model="newCustomMatchValue" placeholder="Enter bookie name">
+                    <select ng-model=newCustomMatchValue>
+                        <option ng-repeat="runner in selectedBookie.markets[0].runners">{{runner.name}}</option>
+                    </select>
+                    </td>
+                    <td><button class="btn btn-xs" ng-click="addCustomMatch2(selectedBookie)" ng-disabled="!(newCustomMatchKey && newCustomMatchValue)">Add</button></td>
+                </tr>
+            </table>
             <!--<span>{{selectedBookie.bestResults}}</span>-->
         </div>
     </div>

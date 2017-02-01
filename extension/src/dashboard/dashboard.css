@@ -316,3 +316,6 @@ input[type=number]::-webkit-outer-spin-button {
     padding: 10px;
     cursor: pointer;
 }
+.bb-panel {
+    margin: 5px 0;
+}
