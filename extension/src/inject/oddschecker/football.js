@@ -30,6 +30,7 @@ window.bb_getOddschekerFootball = function(result) {
     result.event = result.event || {};
     result.event.name = home + ' v ' + away;
     result.event.time = $('.page-description.module .event span.date').text().replace(/([A-Za-z0-9 ]*)( \/ )([0-9:]*)/gi, '$3');
+    result.source = "oddschecker";
 
     $bookies.each(function() {
         var $bookie = $(this);
