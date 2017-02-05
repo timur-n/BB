@@ -591,7 +591,9 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 normalizeData(tabData);
                 updateBookies(event, tabData);
                 $scope.events.sort(function(a, b) {
-                    return a.time > b.time ? 1 : a.time < b.time ? -1 : 0;
+                    var s1 = a.time + a.name,
+                        s2 = b.time + b.name;
+                    return s1.localeCompare(s2);
                 });
                 bbStorage.set(event.id, event);
                 bbStorage.set('bb-settings', {

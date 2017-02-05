@@ -30,14 +30,16 @@ window.bb_getBetfredHorse = function(result) {
         eventText = bb.getText($racecard.find('h4 span:first-child')),
         eventRegex = /([A-z]*)( \d{2}\/\d{2} \()(\d{2}:\d{2})(\))/i,
         eventValues = eventRegex.exec(eventText),
+        eventRegexNoDate = /([A-z]*)( )(\d{2}:\d{2})/i,
+        eventValuesNoDate = eventRegex.exec(eventText),
         ewText = bb.getText($root.find('.EW')),
         ewRegex = /(EW: 1\/)(\d)(.*)/i,
         ewValues = ewRegex.exec(ewText),
         ewPlaces = ewValues[3].split(',');
 
     result.event = {
-        name: eventValues[1] || '???',
-        time: eventValues[3] || '00:00'
+        name: eventValues[1] || eventValuesNoDate[1] || '???',
+        time: eventValues[3] || eventValuesNoDate[3] || '00:00'
     };
 
     if (ewText) {

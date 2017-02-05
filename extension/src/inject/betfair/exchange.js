@@ -59,8 +59,7 @@ window.bb_getBetfairExchange = function(result) {
 
         if (result.isFootball) {
             runner.name = runner.name
-                .replace(/the draw/i, 'Draw')
-                .replace(/C Palace/i, 'Crystal Palace');
+                .replace(/the draw/i, 'Draw');
         }
 
         if (runner.price !== "0") {
