@@ -15,12 +15,11 @@ window.bb_getOddschekerHorse = function(result) {
     var bb = window.bb; // defined in inject-lib.js
     var $ = jQuery,
         $bookies = $('.eventTable .eventTableHeader td aside a'),
-        $rows = $('.eventTable .eventTableRow,.eventTable .eventTableRowNonRunner'),
+        $rows = $('#oddsTableContainer .evTabRow'),
         $ewRow = $('#etfEW td[data-ew-div]');
 
     result.event = result.event || {};
-    result.event.name = bb.getText($('.page-description h1'))
-        .replace(/([A-z]*)([ 0-9:]*)([\w ]*)/gi, '$1');
+    result.event.name = bb.getText($('.menu-bread-crumbs .breadcrumb-link.active-path'));
     result.event.time = $('.event li.selected a').text();
     if (!result.event.time) {
         result.event.time = '00:00';
@@ -52,6 +51,8 @@ window.bb_getOddschekerHorse = function(result) {
         }
     });
 
+    result.debug = result.debug || {runners: []};
+    result.debug.rows = $rows.length;
     $rows.each(function() {
         var $row = $(this);
         var runnerName = bb.getTextNoChildren($row.find('td a.selTxt'));
@@ -78,5 +79,6 @@ window.bb_getOddschekerHorse = function(result) {
 
     result.bookies = bookies;
     result.autoReload = 5 * 60 * 1000; // 5 min
+    result.test = "Test";
     return result;
 };

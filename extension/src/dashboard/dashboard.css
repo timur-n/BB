@@ -220,6 +220,9 @@ input[type=text], input[type=number], input[type=password] {
 .bookie.bw {
     background-position: -408px 0;
 }
+.bookie.bt {
+    background-position: -816px 0;
+}
 .betfair-ids {
     width: 500px;
     height: 50px;

@@ -16,7 +16,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
         $scope.newBetsAcknowledged = true;
         $scope.knownBookies = [
             {name: 'Bet 365', short: 'B365'},
-            //{name: 'Sky Bet', short: 'Sky'},
+            {name: 'Sky Bet', short: 'Sky'},
             //{name: 'Ladbrokes', short: 'Lads'},
             {name: 'Betfair Sportsbook', short: 'BFSB'},
             {name: 'Betfred', short: 'Bfr'},
@@ -29,8 +29,9 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             {name: 'William Hill', short: 'WH'},
             {name: '188Bet', short: 'b188'},
             {name: 'Betstars', short: 'Betstars'},
-            {name: '32Red Bet', short: 'r32'},
-            {name: 'Betway', short: 'bw'}
+            // {name: '32Red Bet', short: 'r32'},
+            {name: 'Betway', short: 'bw'},
+            {name: 'Black Type', short: 'bt'}
         ];
         $scope.isLogOn = false;
         bbStorage.get('bb-settings', function(settings) {
@@ -573,7 +574,21 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                                             newBookie.processors[i].enabled = oldBookie.processors[i].enabled;
                                         }
                                     }
-                                    // todo-timur: restore runners disabled state
+                                    // restore runners disabled state
+                                    var newMarket;
+                                    oldBookie.markets.forEach(function(market) {
+                                        newMarket = bbUtils.objByStr(newBookie.markets, 'name', market.name);
+                                        if (newMarket) {
+                                            market.runners.forEach(function(runner) {
+                                                if (runner.locked && runner.lockedBackOdds === 0) {
+                                                    var newRunner = bbUtils.objByStr(newMarket.runners, 'name', runner.name);
+                                                    if (newRunner) {
+                                                        $scope.toggleRunnerExcluded(newRunner)
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
                                 }
                             });
                         }
@@ -810,14 +825,6 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                     $log.debug('sendToCalc() error', data, status);
                 });
         };
-
-        $scope.addCustomMatch = function(bookie) {
-            var exchangeName = prompt('Enter exchange runner name', '');
-            if (exchangeName) {
-                bookie.customMatches = bookie.customMatches || {};
-                bookie.customMatches[exchangeName] = 'Enter bookie runner';
-            }
-        }
 
         function clearNewCustomMatch() {
             $scope.newCustomMatchKey = '';
