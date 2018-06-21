@@ -19,8 +19,12 @@ window.bb_getOddschekerHorse = function(result) {
         $ewRow = $('#etfEW td[data-ew-div]');
 
     result.event = result.event || {};
-    result.event.name = bb.getText($('.menu-bread-crumbs .breadcrumb-link.active-path'));
-    result.event.time = $('.event li.selected a').text();
+    result.event.name = bb.getText($('.left-if-has-race-info h1'))
+        .replace(/(monday|tuesday|wendesday|thursday|friday|saturday|sunday)/gi, '')
+        .replace(/ winner betting odds/gi, '')
+        .replace(/[0-9:]*/gi, '')
+        .trim();
+    result.event.time = $('.left-if-has-race-info .beta-caption5').text();
     if (!result.event.time) {
         result.event.time = '00:00';
     }

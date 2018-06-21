@@ -20,6 +20,7 @@
         <button class="btn btn-xs" ng-click="resetStorage();">Reset storage</button>
         <input type="checkbox" id="isLogOn" ng-model="isLogOn">
         <label for="isLogOn">Log</label>
+        <span class="error-msg" ng-if="errorMsg" ng-click="resetError()">{{errorMsg}}</span>
     </div>
     <div class="events-container">
         <table class="events">

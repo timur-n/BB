@@ -322,3 +322,9 @@ input[type=number]::-webkit-outer-spin-button {
 .bb-panel {
     margin: 5px 0;
 }
+.error-msg {
+    margin-left: 20px;
+    background: red;
+    color: black;
+    padding: 4px;
+}

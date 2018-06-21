@@ -596,8 +596,10 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
                 });
                 if (event.name !== 'Unknown') {
                     $scope.events.push(event);
+                } else {
+                    $scope.errorMsg = "Can't detect event name";
+                    log($scope.errorMsg, event);
                 }
-                //$log.debug('Event added', event);
             }
 
             if (event) {
@@ -622,6 +624,10 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
 
             //$log.debug('Updated data', $scope.events);
             $scope.$apply();
+        };
+
+        $scope.resetError = function() {
+            $scope.errorMsg = '';
         };
 
         function getInterval(date) {
