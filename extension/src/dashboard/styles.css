@@ -1,0 +1,18 @@
+.bb-runners__table {
+    border-collapse: collapse;
+}
+.bb-runners__header th {
+    border: 1px solid rgba(0, 0, 0, 0.37);
+}
+
+.bb-runner-row__row {
+    width: 100%;
+}
+.bb-runner-row__cell {
+    min-width: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.38);
+    border-width: 1px 1px 0 0;
+}
+.bb-runner-row__name {
+    width: 200px;
+}

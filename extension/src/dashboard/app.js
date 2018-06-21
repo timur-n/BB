@@ -25,7 +25,7 @@ angular.module('BBApp', ['BBStorage', 'BBUtils', 'BBProcessors'])
             {name: 'Bet Victor', short: 'BVic'},
             {name: 'Coral', short: 'Coral'},
             //{name: 'Boylesports', short: 'Boyle'},
-            {name: 'Winner', short: 'Winner'},
+            // {name: 'Winner', short: 'Winner'},
             {name: 'William Hill', short: 'WH'},
             {name: '188Bet', short: 'b188'},
             {name: 'Betstars', short: 'Betstars'},

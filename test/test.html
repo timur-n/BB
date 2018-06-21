@@ -3,18 +3,50 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
-    <script type="text/javascript" src="../src/dashboard/betfair-api.js"></script>
-    <script>
-        var betfair = createBetfair();
-
-        function send() {
-            betfair.test(function(data) {
-                console.log('Betfair test done', data);
-            });
+    <link rel="stylesheet" type="text/css" href="../extension/src/dashboard/angular-material.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../extension/src/dashboard/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="../extension/src/dashboard/dashboard.css"/>
+    <script type="text/javascript" src="../extension/src/dashboard/angular.js"></script>
+    <script type="text/javascript" src="../extension/src/dashboard/angular-animate.min.js"></script>
+    <script type="text/javascript" src="../extension/src/dashboard/angular-aria.min.js"></script>
+    <script type="text/javascript" src="../extension/src/dashboard/angular-material.js"></script>
+    <script type="text/javascript" src="../extension/src/dashboard/bb-runners.js"></script>
+    <style>
+        body {
+            font-size: 12px;
         }
-    </script>
+    </style>
 </head>
-<body>
-    <button onclick="send()">Test</button>
+<body ng-app="test" ng-controller="testCtrl">
+    <bb-runners runners="runners" bookies="bookies"></bb-runners>
+
+    <script>
+        angular
+            .module("test", [
+                "bb.runners",
+                "bb.known-bookies",
+            ])
+            .controller("testCtrl", ($scope, KnownBookies) => {
+                $scope.runners = [];
+                $scope.bookies = KnownBookies;
+                for (var i = 0; i < 40; i += 1) {
+                    var runner = {
+                        name: "Horse " + i,
+                        backOdds: i + 1,
+                        layOdds: (i + 1) * 1.1,
+                        bookies: [],
+                    };
+                    $scope.bookies.forEach(item => {
+                        runner.bookies.push({
+                            name: item.name,
+                            isBest: true,
+                            backOdds: 1,
+                        });
+                    });
+
+                    $scope.runners.push(runner);
+                }
+            })
+    </script>
 </body>
 </html>
