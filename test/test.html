@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="../extension/src/dashboard/angular-material.min.css"/>
     <link rel="stylesheet" type="text/css" href="../extension/src/dashboard/styles.css"/>
     <link rel="stylesheet" type="text/css" href="../extension/src/dashboard/dashboard.css"/>
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <script type="text/javascript" src="../extension/src/dashboard/angular.js"></script>
     <script type="text/javascript" src="../extension/src/dashboard/angular-animate.min.js"></script>
     <script type="text/javascript" src="../extension/src/dashboard/angular-aria.min.js"></script>
@@ -18,7 +19,9 @@
     </style>
 </head>
 <body ng-app="test" ng-controller="testCtrl">
-    <bb-runners runners="runners" bookies="bookies"></bb-runners>
+    <div style="height: 90%; width: 90%; outline: 1px solid red;">
+        <bb-runners runners="runners" bookies="bookies" style="display: block; height: 100%; overflow: auto;"></bb-runners>
+    </div>
 
     <script>
         angular
@@ -28,7 +31,8 @@
             ])
             .controller("testCtrl", ($scope, KnownBookies) => {
                 $scope.runners = [];
-                $scope.bookies = KnownBookies;
+                $scope.bookies = [].concat(KnownBookies);
+                $scope.bookies.forEach(bookie => bookie.ew = {places: 4, fraction: 5});
                 for (var i = 0; i < 40; i += 1) {
                     var runner = {
                         name: "Horse " + i,

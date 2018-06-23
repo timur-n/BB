@@ -1,5 +1,6 @@
 .bb-runners__table {
     border-collapse: collapse;
+    width: 100%;
 }
 .bb-runners__header th {
     border: 1px solid rgba(0, 0, 0, 0.37);
@@ -15,4 +16,32 @@
 }
 .bb-runner-row__name {
     width: 200px;
+}
+.bb-runners__input-container {
+    height: 20px;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+.bb-runners__stake-input {
+    height: 20px !important;
+    width: 40px !important;
+}
+.bb-runners__lock-btn {
+    display: inline-block;
+    opacity: 0.1;
+}
+.bb-runners__lock-btn:hover {
+    opacity: 1;
+}
+.bb-runners__lock-btn .md-button {
+    min-height: 20px !important;
+    height: 20px !important;
+    width: 20px !important;
+    margin: 0 0 0 5px !important;
+    padding: 0 !important;
+}
+.bb-runners__lock-btn .md-button .fa {
+    float: none;
+    padding: 0;
+    margin: 0;
 }
