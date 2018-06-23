@@ -28,17 +28,21 @@ window.bb_getBetfairExchange = function(result) {
         result.sport = 'Football';
         result.isFootball = true;
     }
-    var venue = bb.getText($('.event-info .venue-name'));
+    var venue = bb.getText($('.event-info .venue-name')) || bb.getText($('.event-header .title'));
     var regex = /([0-9:]*)([ A-z]*)([ (A-Z)]*)/gi;
     result.event.name = venue.replace(regex, '$2').trim();
     result.event.time = venue.replace(regex, '$1').trim();
     result.source = "betfair-exchange";
     result.betfair = url;
+    if (!result.event.time) {
+        // Football time: "Sunday 24 Jun, 16:00"
+        result.event.time = bb.getText($('.event-header .date')).replace(/(.*), (.*)/gi, '$2');
+    }
 
     var market = result.markets[0];
     market.name = bb.getText($('.generic-tabs-container .generic-tab-selected .market-tab-label'));
     if (!market.name) {
-        market.name = bb.getText($('.marketview-header-bottom-container h2.market-type'));
+        market.name = bb.getText($('.marketview-header-wrapper-bottom-container h2.market-type'));
     }
     if (result.isGolf) {
         market.name = market.name.replace(/winner/gi, 'Win').replace(/top 5 finish/gi, 'Place');
@@ -69,4 +73,3 @@ window.bb_getBetfairExchange = function(result) {
 
     return result;
 };
-

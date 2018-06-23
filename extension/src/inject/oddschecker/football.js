@@ -13,13 +13,13 @@ window.bb_getOddschekerFootball = function(result) {
 
     var $ = jQuery,
         $bookies = $('.eventTable .eventTableHeader td aside a'),
-        $rows = $('.eventTable .eventTableRow'),
+        $rows = $('.eventTable .evTabRow'),
         $ewRow = $('.eventTable .eventTableFooter');
 
     // Make array of [Home, Away, MarketName]
-    var s = $('.page-description.module h1').text();
+    var s = bb.getText($('.left-if-has-race-info h1')).trim();
     if (/winner betting odds/gi.test(s)) {
-        s = s.replace(/([A-Z ]*)( V )([A-Z ]*)(WINNER BETTING ODDS)/gi, '$1/$3/Winner');
+        s = s.replace(/([A-Z ]*)( V )([A-Z ]*)( WINNER BETTING ODDS)/gi, '$1/$3/Winner');
     } else {
         s = s.replace(/([A-Z ]*)( V )([A-Z ]*)( - )([A-Z ]*)( BETTING ODDS)/gi, '$1/$3/$5');
     }
@@ -31,12 +31,16 @@ window.bb_getOddschekerFootball = function(result) {
     result.event.name = home + ' v ' + away;
     result.event.time = $('.page-description.module .event span.date').text().replace(/([A-Za-z0-9 ]*)( \/ )([0-9:]*)/gi, '$3');
     result.source = "oddschecker";
+    result.debug = result.debug || {};
 
     $bookies.each(function() {
         var $bookie = $(this);
         var bookieName = $bookie.attr('title') || 'NOT FOUND';
         bookies.push({name: bookieName});
     });
+
+    result.debug.rows = $rows.length;
+    result.debug.market = marketName;
 
     $rows.each(function() {
         var $row = $(this);
